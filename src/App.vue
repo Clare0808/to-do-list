@@ -1,9 +1,13 @@
 <template>
   <div class="flame">
     <nav>
-      <i class="fa-solid fa-user"></i>
+      <div class="user">
+        <i class="fa-solid fa-user" id="user"></i>
+        <div class="user-name">User</div>
+      </div>
       <router-link to="/">Home</router-link>
       <router-link to="/list">List</router-link>
+      <i class="fa-solid fa-arrow-right-from-bracket" id="log-out"></i>
     </nav>
     <router-view/>
   </div>
@@ -40,45 +44,72 @@ nav {
   height: 85vh;
   background-color: #FFFFFF;
   border-radius: 12px;
-  box-shadow: 0px 0px 5px 3px #F0F0F0;
+  box-shadow: 0px 0px 5px 3px #CECEFF;
   padding: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
 }
 
 nav a {
   font-size: 20px;
   font-weight: bold;
   text-align: center;
-  color: #005AB5;
+  color: #CECEFF;
   text-decoration: none;  /* 移除文字底線 */
   margin: 10px;
   padding: 10px;
-  transition: transform 0.3s ease-in-out;
+  padding-bottom: 5px;
+  transition: transform 0.2s ease-in-out;
 }
 
 nav a.router-link-exact-active {
-  color: white;
-  background-color: #ACD6FF;
-  border-radius: 20px;
+  width: 100%;
+  color: #46A3FF;
 }
 
 nav a:hover{
-  color: white;
-  background-color: #ACD6FF;
-  border-radius: 20px;
-  transform: scale(1.2);
+  transform: translateY(-3px);
 }
-
-i{
+.user{
+  width: 100px;
+  margin-bottom: 50px;
+  border-bottom: 2px solid #CECEFF;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#user{
   width: 40px;
   height: 40px;
   font-size: 38px;
+  color: #46A3FF;
+  text-align: center;
+  border: 3px solid #46A3FF;
+  border-radius: 50%;
+  cursor: pointer;
+}
+#user:hover{
+  color: #ACD6FF;
+  border: 3px solid #ACD6FF;
+}
+.user-name{
   color: #005AB5;
   text-align: center;
-  border: 3px solid #005AB5;
-  border-radius: 50%;
-  margin-bottom: 50px;
+  margin-top: 20px;
+}
+#log-out{
+  color: #CECEFF;
+  font-size: 25px;
+  position: absolute;
+  bottom: 40px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+#log-out:hover{
+  color: #46A3FF;
+  transform: translateY(-3px);
 }
 </style>
