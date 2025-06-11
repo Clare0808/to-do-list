@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import List from '@/components/TaskList.vue'
+import Tasklist from '@/components/TaskList.vue'
+import TaskStatus from '@/components/TaskStatus.vue'
 
 const routes = [
   {
@@ -11,7 +12,12 @@ const routes = [
   {
     path: '/list',
     name: 'TaskList',
-    component: List
+    component: Tasklist
+  },
+  {
+    path: '/status',
+    name: 'TaskStatus',
+    component: TaskStatus
   }
 ]
 

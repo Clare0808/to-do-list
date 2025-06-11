@@ -7,6 +7,7 @@
       </div>
       <router-link to="/">Home</router-link>
       <router-link to="/list">List</router-link>
+      <router-link to="/status">Status</router-link>
       <i class="fa-solid fa-arrow-right-from-bracket" id="log-out"></i>
     </nav>
     <router-view/>
