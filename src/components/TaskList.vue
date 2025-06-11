@@ -10,6 +10,7 @@
         />
         <div class="add-btn" @click.stop="Addtask">Add</div>
       </div>
+      <div class="non-tasks" v-if="allTasks.length === 0">Nothing here.</div>
       <div class="task"
         @click="Taskclick(index)"
         :class="{active : clicked.includes(index)}"
@@ -22,12 +23,23 @@
       </div>
     </div>
     <ErrorMessage v-if="nontask"/>
+    <div class="filter-flame">
+      <div class="filter">
+        <div class="filter-title">Done !</div>
+        <div class="non-tasks" v-if="finishedTasks.length === 0">Nothing here.</div>
+        <div class="done-tasks" v-for="(t, index) in finishedTasks" :key="index">{{ t }}</div>
+      </div>
+      <div class="filter">
+        <div class="filter-title">Not Done !</div>
+        <div class="non-tasks" v-if="notFinishedTasks.length === 0">Nothing here.</div>
+        <div class="not-done-tasks" v-for="(t, index) in notFinishedTasks" :key="index">{{ t }}</div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { ref } from 'vue'
-/* import apiService from '@/services/api' */
 import ErrorMessage from '@/components/ErrorMessage.vue'
 
 export default {
@@ -40,36 +52,71 @@ export default {
     const task = ref('')
     const nontask = ref(false)
     const allTasks = ref([])
+    const finishedTasks = ref([])
+    const notFinishedTasks = ref([])
 
     // 點擊任務時切換樣式
     const Taskclick = (index) => {
       if (clicked.value.includes(index)) {
         clicked.value = clicked.value.filter(i => i !== index) // 移除已點擊的任務索引
+        finishedTasks.value = finishedTasks.value.filter(t => t !== allTasks.value[index]) // 從已完成任務中移除該任務
+        notFinishedTasks.value.push(allTasks.value[index]) // 將該任務添加到未完成任務列表
       } else {
         clicked.value.push(index) // 添加新的點擊任務索引
+        finishedTasks.value.push(allTasks.value[index]) // 將點擊的任務添加到已完成任務列表
+        notFinishedTasks.value = notFinishedTasks.value.filter(t => t !== allTasks.value[index])
       }
     }
 
     // 新增任務
-    const Addtask = () => {
-      /* const response = apiService.getTasks() */
+    const Addtask = async () => {
       if (task.value.trim() === '') {
         nontask.value = true // 顯示錯誤訊息
-      } else {
-        allTasks.value.push(task.value) // 將輸入的任務添加到任務列表中
-
-        task.value = '' // 清空輸入框
-
-        nontask.value = false // 隱藏錯誤訊息
       }
 
-      /* console.log(response) */
+      try {
+        const response = await fetch('http://localhost:5000/api/list', { // 向後端發送請求
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ task: task.value }) // 將任務內容轉換為 JSON 格式
+        })
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok')
+        }
+
+        const result = await response.json()
+        console.log('成功新增任務', result)
+
+        allTasks.value.push(task.value) // 將新任務添加到任務列表中
+        notFinishedTasks.value.push(task.value) // 將新任務添加到未完成任務列表中
+        task.value = '' // 清空輸入框
+        nontask.value = false // 隱藏錯誤訊息
+      } catch (error) {
+        console.error('新增任務失敗:', error)
+      }
     }
 
     // 刪除任務
     const Deletetask = (index) => {
+      const taskToDelete = allTasks.value[index] // 獲取要刪除的任務
+
       allTasks.value.splice(index, 1) // 從任務列表中刪除指定索引的任務
-      clicked.value = clicked.value.filter(i => i !== index) // 移除已刪除任務的索引
+
+      // 更新 clicked
+      clicked.value = clicked.value
+        .filter(i => i !== index) // 移除當前刪除的 index
+        .map(i => i > index ? i - 1 : i) // 後面所有 index 減 1，避免錯位
+
+      const removeTask = (arr) => {
+        const idx = arr.indexOf(taskToDelete) // 查找要刪除的任務在列表中的索引
+        if (idx !== -1) arr.splice(idx, 1) // 刪除該任務
+      }
+
+      removeTask(finishedTasks.value) // 從已完成任務列表中刪除該任務
+      removeTask(notFinishedTasks.value) // 從未完成任務列表中刪除該任務
     }
 
     return {
@@ -77,6 +124,8 @@ export default {
       task,
       nontask,
       allTasks,
+      finishedTasks,
+      notFinishedTasks,
       Taskclick,
       Addtask,
       Deletetask
@@ -88,7 +137,6 @@ export default {
 <style scoped>
 .list{
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
@@ -116,7 +164,7 @@ export default {
 .input-flame{
   display: flex;
   justify-content: center;
-  margin-bottom: 10px;
+  margin-bottom: 30px;
 }
 .input{
   width: 300px;
@@ -173,5 +221,51 @@ hr{
 .delete-btn{
   position: absolute;
   right: 20px;
+}
+.filter{
+  background-color: #FFFFFF;
+  width: 300px;
+  padding: 30px;
+  border-radius: 12px;
+  margin: 20px;
+  margin-left: 40px;
+  text-align: center;
+}
+.filter-title{
+  color: #46A3FF;
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #CECEFF;
+}
+.non-tasks{
+  color: #CECEFF;
+  font-size: 20px;
+  font-weight: bold;
+}
+.done-tasks{
+  height: 30px;
+  color: #02DF82;
+  background-color: #DFFFDF;
+  font-size: 20px;
+  border-radius: 12px;
+  text-align: center;
+  padding: 5px;
+  padding-left: 20px;
+  line-height: 30px;
+  margin: 10px;
+}
+.not-done-tasks{
+  height: 30px;
+  color: #FF5151;
+  background-color: #FFB5B5;
+  font-size: 20px;
+  border-radius: 12px;
+  text-align: center;
+  padding: 5px;
+  padding-left: 20px;
+  line-height: 30px;
+  margin: 10px;
 }
 </style>
