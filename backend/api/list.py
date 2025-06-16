@@ -22,7 +22,7 @@ def get_task():
 def send_task():
     tasks = Tasks.query.all()
 
-    tasks_list = [{"task_id": task.task_id, "task": task.task} for task in tasks]
+    tasks_list = [{"task_id": task.task_id, "task": task.task, "task_type": task.task_type} for task in tasks]
 
     print("所有任務:", tasks_list)
 
@@ -45,3 +45,16 @@ def delete_task():
     db.session.commit()
 
     return jsonify({"message": "任務已刪除"}), 200
+
+@api_bp.route("/list/update", methods=["POST"])
+def update_task():
+    data = request.get_json()
+    task_id = data.get("task_id")
+    task_type = data.get("task_type")
+
+    task = Tasks.query.get(task_id)
+
+    task.task_type = task_type
+    db.session.commit()
+
+    return jsonify({"message": "任務已更新"}), 200

@@ -15,11 +15,11 @@
           <div class="non-tasks" v-if="allTasks.length === 0">Nothing here.</div>
           <div class="task"
             @click="Taskclick(index)"
-            :class="{active : clicked.includes(index)}"
+            :class="{active : clicked.includes(t.task_id)}"
             v-for="(t, index) in allTasks"
             :key="index"
-            >
-            <hr v-show="clicked.includes(index)"/>
+          >
+            <hr v-show="clicked.includes(t.task_id)"/>
             {{ t.task }}
             <span class="delete-btn" @click.stop="Deletetask(index)">x</span>
           </div>
@@ -64,15 +64,38 @@ export default {
     const notFinishedTasks = ref([])
 
     // 點擊任務時切換樣式
-    const Taskclick = (index) => {
-      if (clicked.value.includes(index)) {
-        clicked.value = clicked.value.filter(i => i !== index) // 移除已點擊的任務索引
-        finishedTasks.value = finishedTasks.value.filter(t => t !== allTasks.value[index]) // 從已完成任務中移除該任務
-        notFinishedTasks.value.push(allTasks.value[index]) // 將該任務添加到未完成任務列表
-      } else {
-        clicked.value.push(index) // 添加新的點擊任務索引
-        finishedTasks.value.push(allTasks.value[index]) // 將點擊的任務添加到已完成任務列表
-        notFinishedTasks.value = notFinishedTasks.value.filter(t => t !== allTasks.value[index])
+    const Taskclick = async (index) => {
+      const taskId = allTasks.value[index].task_id
+      const taskType = clicked.value.includes(taskId)
+
+      // 向後端發送請求更新任務狀態
+      try {
+        const response = await fetch('http://localhost:5000/api/list/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            task_id: taskId,
+            task_type: !taskType
+          })
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`)
+        }
+
+        allTasks.value[index].task_type = !taskType // 更新任務狀態
+
+        if (taskType) { // 已完成 變 未完成
+          clicked.value = clicked.value.filter(i => i !== taskId)
+          finishedTasks.value = finishedTasks.value.filter(task => task.task_id !== taskId)
+          notFinishedTasks.value.push(allTasks.value[index])
+        } else { // 未完成 變 已完成
+          clicked.value.push(taskId)
+          finishedTasks.value = allTasks.value.filter(task => task.task_type)
+          notFinishedTasks.value = notFinishedTasks.value.filter(task => task.task_id !== taskId)
+        }
+      } catch (error) {
+        console.error('任務狀態更新失敗:', error)
       }
     }
 
@@ -98,6 +121,7 @@ export default {
           console.log('成功新增任務', result)
 
           await Gettasks()
+          // allTasks.value.push({ task_id: result.task_id, task: task.value, task_type: false }) // 將新任務添加到 allTasks 中
 
           task.value = '' // 清空輸入框
           nontask.value = false // 隱藏錯誤訊息
@@ -112,6 +136,7 @@ export default {
       const taskToDelete = allTasks.value[index]
       const taskId = taskToDelete.task_id
 
+      // 向後端發送請求刪除任務
       const response = await fetch('http://localhost:5000/api/list/delete', {
         method: 'POST',
         headers: {
@@ -124,25 +149,7 @@ export default {
         throw new Error('Network response was not ok')
       }
 
-      await Gettasks()
-
-      /* const taskToDelete = allTasks.value[index] // 獲取要刪除的任務
-
-      allTasks.value.splice(index, 1) // 從任務列表中刪除指定索引的任務
-
-      // 更新 clicked
-      clicked.value = clicked.value
-        .filter(i => i !== index) // 移除當前刪除的 index
-        .map(i => i > index ? i - 1 : i) // 後面所有 index 減 1，避免錯位
-
-      const removeTask = (arr) => {
-        const idx = arr.indexOf(taskToDelete) // 查找要刪除的任務在列表中的索引
-        if (idx !== -1) arr.splice(idx, 1) // 刪除該任務
-      }
-
-      removeTask(finishedTasks.value) // 從已完成任務列表中刪除該任務
-      removeTask(notFinishedTasks.value) // 從未完成任務列表中刪除該任務 */
-    }
+      await Gettasks() // 重新獲取任務列表
 
     // 取得紀錄
     const Gettasks = async () => {
@@ -151,13 +158,20 @@ export default {
         const history = await response.json()
 
         allTasks.value = history.tasks.filter(task => task.task.trim() !== '')
+        finishedTasks.value = allTasks.value.filter(task => task.task_type)
+        notFinishedTasks.value = allTasks.value.filter(task => !task.task_type)
       } catch (error) {
         console.error('獲取任務失敗:', error)
       }
     }
 
-    onMounted(() => {
-      Gettasks() // 在組件掛載時獲取任務資料
+    onMounted(async () => {
+      await Gettasks() // 在組件掛載時獲取任務資料
+
+      // 初始化 clicked
+      clicked.value = allTasks.value
+        .filter(task => task.task_type)
+        .map(task => task.task_id)
     })
 
     return {
