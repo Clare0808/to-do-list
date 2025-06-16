@@ -150,6 +150,7 @@ export default {
       }
 
       await Gettasks() // 重新獲取任務列表
+    }
 
     // 取得紀錄
     const Gettasks = async () => {
