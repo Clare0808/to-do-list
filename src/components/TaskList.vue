@@ -36,7 +36,7 @@
         </div>
       </div>
       <div class="filter">
-        <div class="filter-title">Not Done !</div>
+        <div class="filter-title">Undo !</div>
         <div class="non-tasks" v-if="notFinishedTasks.length === 0">Nothing here.</div>
         <div class="filter-tasks-flame">
          <div class="not-done-tasks" v-for="(t, index) in notFinishedTasks" :key="index">{{ t.task }}</div>
@@ -121,7 +121,6 @@ export default {
           console.log('成功新增任務', result)
 
           await Gettasks()
-          // allTasks.value.push({ task_id: result.task_id, task: task.value, task_type: false }) // 將新任務添加到 allTasks 中
 
           task.value = '' // 清空輸入框
           nontask.value = false // 隱藏錯誤訊息
@@ -220,6 +219,7 @@ export default {
   background-color: #FFFFFF;
   padding: 30px;
   border-radius: 12px;
+  box-shadow: 0px 0px 5px 3px #ceceff;
 }
 .input-flame{
   display: flex;
@@ -295,6 +295,7 @@ hr{
   margin: 20px;
   margin-left: 40px;
   text-align: center;
+  box-shadow: 0px 0px 5px 3px #ceceff;
 }
 .filter-title{
   color: #46A3FF;
