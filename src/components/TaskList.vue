@@ -9,9 +9,15 @@
             v-model.trim="task"
             @keydown.enter="Addtask"
           />
+           <i class="fa-regular fa-calendar"
+              id="calendar-btn"
+              @click="Togglecalendar"
+              :class="{active: calendarclick}"
+          ></i>
           <div class="add-btn" @click.stop="Addtask">Add</div>
         </div>
         <div class="tasks-flame">
+          <Calendar v-show="calendarclick" id="calendar"/>
           <div class="non-tasks" v-if="allTasks.length === 0">Nothing here.</div>
           <div class="task"
             @click="Taskclick(index)"
@@ -49,11 +55,13 @@
 <script>
 import { ref, onMounted } from 'vue'
 import ErrorMessage from '@/components/ErrorMessage.vue'
+import Calendar from '@/components/Calendar.vue'
 
 export default {
   name: 'TaskList',
   components: {
-    ErrorMessage
+    ErrorMessage,
+    Calendar
   },
   setup () {
     const clicked = ref([])
@@ -62,6 +70,11 @@ export default {
     const allTasks = ref([])
     const finishedTasks = ref([])
     const notFinishedTasks = ref([])
+    const calendarclick = ref(false)
+
+    const Togglecalendar = () => {
+      calendarclick.value = !calendarclick.value
+    }
 
     // 點擊任務時切換樣式
     const Taskclick = async (index) => {
@@ -181,6 +194,8 @@ export default {
       allTasks,
       finishedTasks,
       notFinishedTasks,
+      calendarclick,
+      Togglecalendar,
       Taskclick,
       Addtask,
       Deletetask,
@@ -220,6 +235,8 @@ export default {
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0px 0px 5px 3px #ceceff;
+  position: relative;
+  z-index: 1;
 }
 .input-flame{
   display: flex;
@@ -227,7 +244,7 @@ export default {
   margin-bottom: 30px;
 }
 .input{
-  width: 300px;
+  width: 270px;
   height: 30px;
   border: 2px solid #ACD6FF;
   border-radius: 12px;
@@ -248,6 +265,19 @@ export default {
 }
 .add-btn:hover{
   background-color: #ACD6FF;
+  color: #46A3FF;
+}
+#calendar-btn {
+  font-size: 25px;
+  line-height: 35px;
+  color: #ACD6FF;
+  margin-right: 10px;
+  cursor: pointer;
+}
+#calendar-btn:hover {
+  color: #46A3FF;
+}
+#calendar-btn.active {
   color: #46A3FF;
 }
 .tasks-flame{
@@ -304,6 +334,12 @@ hr{
   margin-bottom: 30px;
   padding-bottom: 10px;
   border-bottom: 2px solid #CECEFF;
+}
+#calendar {
+  position: absolute;
+  z-index: 2;
+  top: 150px;
+  right: 30px;
 }
 .non-tasks{
   color: #CECEFF;
