@@ -7,14 +7,14 @@
           <input class="input"
             placehoder="Please enter your tasks ..."
             v-model.trim="task"
-            @keydown.enter="Addtask"
+            @keydown.enter="Togglecalendar"
           />
            <i class="fa-regular fa-calendar"
               id="calendar-btn"
               @click="Togglecalendar"
               :class="{active: calendarclick}"
           ></i>
-          <div class="add-btn" @click.stop="Addtask">Add</div>
+          <div class="add-btn" @click.stop="Togglecalendar">Add</div>
         </div>
         <div class="tasks-flame">
           <Calendar v-show="calendarclick" id="calendar"/>
@@ -27,6 +27,7 @@
           >
             <hr v-show="clicked.includes(t.task_id)"/>
             {{ t.task }}
+            <span class="time">12/23</span>
             <span class="delete-btn" @click.stop="Deletetask(index)">x</span>
           </div>
         </div>
@@ -312,6 +313,10 @@ hr{
   top: 26%;
   left: -3px;
   z-index: -1;
+}
+.time {
+  position: absolute;
+  right: 60px;
 }
 .delete-btn{
   position: absolute;

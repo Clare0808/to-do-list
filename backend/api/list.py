@@ -63,3 +63,11 @@ def update_task():
     db.session.commit() # 更新資料庫
 
     return jsonify({"message": "任務已更新"}), 200
+
+@api_bp.route("/list/time", methods=["POST"])
+def get_time ():
+    data = request.get_json()
+
+    time = data.get("time")
+
+    return jsonify({"time": time}), 200 
