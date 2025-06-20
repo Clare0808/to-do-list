@@ -12,8 +12,9 @@ def get_task():
         # 取得任務內容與類型
         task_content = data.get("task")
         task_type = data.get("task_type")
+        task_time = data.get("task_time")
 
-        new_task = Tasks(task=task_content, task_type=task_type) # 建立新的任務
+        new_task = Tasks(task=task_content, task_type=task_type, task_time=task_time) # 建立新的任務
         
         # 將任務存入資料庫
         db.session.add(new_task)
@@ -26,7 +27,7 @@ def get_task():
 def send_task():
     tasks = Tasks.query.all() # 取得所有任務
 
-    tasks_list = [{"task_id": task.task_id, "task": task.task, "task_type": task.task_type} for task in tasks]
+    tasks_list = [{"task_id": task.task_id, "task": task.task, "task_type": task.task_type, "task_time": task.task_time} for task in tasks]
 
     return jsonify({"tasks": tasks_list}), 200 # 回傳任務列表給前端
 
@@ -64,10 +65,18 @@ def update_task():
 
     return jsonify({"message": "任務已更新"}), 200
 
-@api_bp.route("/list/time", methods=["POST"])
+time = None
+
+@api_bp.route("/list/time", methods=["GET", "POST"])
 def get_time ():
-    data = request.get_json()
+    global time
 
-    time = data.get("time")
+    if request.method == "POST":
+        data = request.get_json()
 
-    return jsonify({"time": time}), 200 
+        time = data.get("time")
+
+        return jsonify({"time": time}), 200 
+    
+    if request.method == "GET": 
+        return jsonify({"time": time})

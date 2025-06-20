@@ -13,7 +13,7 @@
         <div class="day"
             v-for="(i, index) in monthalldays"
             :key="index"
-            @click="Clickday(index)"
+            @click.stop="Clickday(index)"
             :class="{active: index === currentclick}"
         >{{ i }}</div>
     </div>
@@ -99,7 +99,10 @@ export default {
     }
 
     const Gettasktime = async () => {
-      const time = (todaymonth.value + 1) + '/' + chosenday.value
+      let time = (todaymonth.value + 1) + ' / ' + chosenday.value
+      if (currentclick.value === '' || chosenday.value === '') {
+        time = ''
+      }
 
       try {
         const response = await fetch('http://localhost:5000/api/list/time', { // 向後端發送請求
@@ -119,6 +122,8 @@ export default {
       } catch (error) {
         console.error('新增任務時間失敗:', error)
       }
+
+      currentclick.value = '' // 清除當前點擊的日期
     }
 
     onMounted(() => {

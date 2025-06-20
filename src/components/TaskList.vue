@@ -14,7 +14,7 @@
               @click="Togglecalendar"
               :class="{active: calendarclick}"
           ></i>
-          <div class="add-btn" @click.stop="Togglecalendar">Add</div>
+          <div class="add-btn" @click.stop="Addtask">Add</div>
         </div>
         <div class="tasks-flame">
           <Calendar v-show="calendarclick" id="calendar"/>
@@ -27,7 +27,7 @@
           >
             <hr v-show="clicked.includes(t.task_id)"/>
             {{ t.task }}
-            <span class="time">12/23</span>
+            <span class="time">{{ t.task_time }}</span>
             <span class="delete-btn" @click.stop="Deletetask(index)">x</span>
           </div>
         </div>
@@ -72,6 +72,7 @@ export default {
     const finishedTasks = ref([])
     const notFinishedTasks = ref([])
     const calendarclick = ref(false)
+    const time = ref('')
 
     const Togglecalendar = () => {
       calendarclick.value = !calendarclick.value
@@ -115,6 +116,15 @@ export default {
 
     // 新增任務
     const Addtask = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/list/time')
+        const timeData = await response.json()
+
+        time.value = timeData.time
+      } catch (error) {
+        console.error('獲取資料失敗:', error)
+      }
+
       if (task.value.trim() === '') {
         nontask.value = true // 顯示錯誤訊息
       } else {
@@ -124,7 +134,7 @@ export default {
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ task: task.value, task_type: false }) // 將任務內容轉換為 JSON 格式
+            body: JSON.stringify({ task: task.value, task_type: false, task_time: time.value }) // 將任務內容轉換為 JSON 格式
           })
 
           if (!response.ok) {
@@ -138,6 +148,8 @@ export default {
 
           task.value = '' // 清空輸入框
           nontask.value = false // 隱藏錯誤訊息
+
+          calendarclick.value = false // 隱藏日曆
         } catch (error) {
           console.error('新增任務失敗:', error)
         }
@@ -196,6 +208,7 @@ export default {
       finishedTasks,
       notFinishedTasks,
       calendarclick,
+      time,
       Togglecalendar,
       Taskclick,
       Addtask,
