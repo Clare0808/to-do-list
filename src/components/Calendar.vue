@@ -25,7 +25,8 @@ import { ref, onMounted } from 'vue'
 
 export default {
   name: 'Calendar',
-  setup () {
+  emits: ['selectTime'], // 用於向父組件傳遞選擇的時間
+  setup (props, { emit }) {
     const dayclick = ref(false)
     const currentclick = ref('')
     const month = ref([
@@ -53,7 +54,8 @@ export default {
 
       chosenday.value = index - remainderdays.value + 1 // 將索引轉換為實際日期
 
-      Gettasktime()
+      const selectedTime = (todaymonth.value + 1) + ' / ' + chosenday.value
+      emit('selectTime', selectedTime) // 傳出時間
     }
 
     // 取得當前月份
@@ -122,8 +124,6 @@ export default {
       } catch (error) {
         console.error('新增任務時間失敗:', error)
       }
-
-      currentclick.value = '' // 清除當前點擊的日期
     }
 
     onMounted(() => {

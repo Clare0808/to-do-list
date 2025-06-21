@@ -64,19 +64,3 @@ def update_task():
     db.session.commit() # 更新資料庫
 
     return jsonify({"message": "任務已更新"}), 200
-
-time = None
-
-@api_bp.route("/list/time", methods=["GET", "POST"])
-def get_time ():
-    global time
-
-    if request.method == "POST":
-        data = request.get_json()
-
-        time = data.get("time")
-
-        return jsonify({"time": time}), 200 
-    
-    if request.method == "GET": 
-        return jsonify({"time": time})

@@ -17,7 +17,7 @@
           <div class="add-btn" @click.stop="Addtask">Add</div>
         </div>
         <div class="tasks-flame">
-          <Calendar v-show="calendarclick" id="calendar"/>
+          <Calendar v-show="calendarclick" id="calendar" @selectTime="Handletime"/>
           <div class="non-tasks" v-if="allTasks.length === 0">Nothing here.</div>
           <div class="task"
             @click="Taskclick(index)"
@@ -33,6 +33,7 @@
         </div>
       </div>
       <ErrorMessage v-show="nontask"/>
+      <ErrorMessageTime v-show="nontime"/>
     </div>
     <div class="filter-flame">
       <div class="filter">
@@ -56,25 +57,30 @@
 <script>
 import { ref, onMounted } from 'vue'
 import ErrorMessage from '@/components/ErrorMessage.vue'
+import ErrorMessageTime from '@/components/ErrorMessageTime.vue'
 import Calendar from '@/components/Calendar.vue'
 
 export default {
   name: 'TaskList',
   components: {
     ErrorMessage,
+    ErrorMessageTime,
     Calendar
   },
   setup () {
     const clicked = ref([])
     const task = ref('')
     const nontask = ref(false)
+    const nontime = ref(false)
     const allTasks = ref([])
     const finishedTasks = ref([])
     const notFinishedTasks = ref([])
     const calendarclick = ref(false)
     const time = ref('')
 
-    const Togglecalendar = () => {
+    const Togglecalendar = async () => {
+      time.value = '' // 清空時間選擇
+
       calendarclick.value = !calendarclick.value
     }
 
@@ -116,13 +122,12 @@ export default {
 
     // 新增任務
     const Addtask = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/list/time')
-        const timeData = await response.json()
+      // await Gettasktime()
 
-        time.value = timeData.time
-      } catch (error) {
-        console.error('獲取資料失敗:', error)
+      if (!time.value) {
+        console.warn('請先選擇日期')
+        nontime.value = true
+        return
       }
 
       if (task.value.trim() === '') {
@@ -149,7 +154,9 @@ export default {
           task.value = '' // 清空輸入框
           nontask.value = false // 隱藏錯誤訊息
 
+          time.value = '' // 清空時間選擇
           calendarclick.value = false // 隱藏日曆
+          nontime.value = false // 隱藏時間錯誤訊息
         } catch (error) {
           console.error('新增任務失敗:', error)
         }
@@ -191,6 +198,12 @@ export default {
       }
     }
 
+    // 獲取任務時間
+    const Handletime = (selected) => {
+      time.value = selected
+      console.log('選擇的日期:', time.value)
+    }
+
     onMounted(async () => {
       await Gettasks() // 在組件掛載時獲取任務資料
 
@@ -204,6 +217,7 @@ export default {
       clicked,
       task,
       nontask,
+      nontime,
       allTasks,
       finishedTasks,
       notFinishedTasks,
@@ -213,7 +227,8 @@ export default {
       Taskclick,
       Addtask,
       Deletetask,
-      Gettasks
+      Gettasks,
+      Handletime
     }
   }
 }
