@@ -1,29 +1,31 @@
 <template>
     <div class="status">
-      <div class="flame">
-        <div class="done-flame">
-          <div class="counter">
-              <div class="title">Done Tasks</div>
-              <div class="done-num">{{ donenum }}</div>
+      <transition name="fade">
+        <div class="flame" v-if="show">
+          <div class="done-flame">
+            <div class="counter">
+                <div class="title">Done Tasks</div>
+                <div class="done-num">{{ donenum }}</div>
+            </div>
+            <div class="chart-flame">
+              <div class="chart-title">Completion Rate</div>
+              <canvas ref="donechart"></canvas>
+              <div class="done-rate">{{ donepercentage }}%</div>
+            </div>
           </div>
-          <div class="chart-flame">
-            <div class="chart-title">Completion Rate</div>
-            <canvas ref="donechart"></canvas>
-            <div class="done-rate">{{ donepercentage }}%</div>
+          <div class="undo-flame">
+            <div class="counter">
+                <div class="title">Undo Tasks</div>
+                <div class="undo-num">{{ undonum }}</div>
+            </div>
+            <div class="chart-flame">
+              <div class="chart-title">Incompletion Rate</div>
+              <canvas ref="undochart"></canvas>
+              <div class="undo-rate">{{ undopercentage }}%</div>
+            </div>
           </div>
         </div>
-        <div class="undo-flame">
-          <div class="counter">
-              <div class="title">Undo Tasks</div>
-              <div class="undo-num">{{ undonum }}</div>
-          </div>
-          <div class="chart-flame">
-            <div class="chart-title">Incompletion Rate</div>
-            <canvas ref="undochart"></canvas>
-            <div class="undo-rate">{{ undopercentage }}%</div>
-          </div>
-        </div>
-      </div>
+      </transition>
     </div>
 </template>
 
@@ -44,6 +46,7 @@ export default {
     const undopercentage = ref(0)
     const Donechartpaint = ref(null)
     const Undochartpaint = ref(null)
+    const show = ref(false)
 
     const Calculatepercentage = () => {
       const total = donenum.value + undonum.value
@@ -68,6 +71,10 @@ export default {
     }
 
     watch([donepercentage, undopercentage], () => {
+      if (!donechart.value || !undochart.value) {
+        return // ❗ 避免在還沒掛載 canvas 時就畫圖
+      }
+
       if (Donechartpaint.value) {
         Donechartpaint.value.destroy() // ✅ 先銷毀舊圖表，避免重疊
       }
@@ -108,6 +115,8 @@ export default {
     })
 
     onMounted(() => {
+      show.value = true // 顯示組件
+
       Gettasknumber() // 獲取任務數量
 
       Calculatepercentage() // 計算百分比
@@ -120,6 +129,7 @@ export default {
       undochart,
       donepercentage,
       undopercentage,
+      show,
       Donechartpaint,
       Undochartpaint,
       Calculatepercentage,
@@ -224,5 +234,25 @@ canvas {
   position: absolute;
   top: 60%;
   right: 37%;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: all 1s ease;
+}
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.fade-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
 }
 </style>

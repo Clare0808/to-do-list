@@ -1,61 +1,80 @@
 <template>
   <div class="list">
     <div class="add-tasks-flame">
-      <div class="work-flame">
-        <div class="title">To-Do List</div>
-        <div class="input-flame">
-          <input class="input"
-            placehoder="Please enter your tasks ..."
-            v-model.trim="task"
-            @keydown.enter="Togglecalendar"
-          />
-           <i class="fa-regular fa-calendar"
-              id="calendar-btn"
-              @click="Togglecalendar"
-              :class="{active: calendarclick}"
-          ></i>
-          <div class="add-btn" @click.stop="Addtask">Add</div>
-        </div>
-        <div class="tasks-flame">
-          <Calendar v-show="calendarclick" id="calendar" @selectTime="Handletime"/>
-          <div class="non-tasks" v-if="allTasks.length === 0">Nothing here.</div>
-          <div class="task"
-            @click="Taskclick(index)"
-            :class="{active : clicked.includes(t.task_id)}"
-            v-for="(t, index) in allTasks"
-            :key="index"
-          >
-            <hr v-show="clicked.includes(t.task_id)"/>
-            {{ t.task }}
-            <span class="time">{{ t.task_time }}</span>
-            <span class="delete-btn" @click.stop="Deletetask(index)">x</span>
+      <transition name="slide">
+        <div class="work-flame" v-if="showworkflame">
+          <div class="title">To-Do List</div>
+          <div class="input-flame">
+            <input class="input"
+              placehoder="Please enter your tasks ..."
+              v-model.trim="task"
+              @keydown.enter="Addtask"
+            />
+            <i class="fa-regular fa-calendar"
+                id="calendar-btn"
+                @click="Togglecalendar"
+                :class="{active: calendarclick}"
+            ></i>
+            <div class="add-btn" @click.stop="Addtask">Add</div>
+          </div>
+          <div class="tasks-flame" ref="scrollalltasksbox">
+            <Calendar v-show="calendarclick" id="calendar" @selectTime="Handletime"/>
+            <div class="non-tasks" v-if="allTasks.length === 0">Nothing here.</div>
+            <transition-group name="fade">
+              <div class="task"
+                @click="Taskclick(index)"
+                :class="{active : clicked.includes(t.task_id)}"
+                v-for="(t, index) in allTasks"
+                :key="index"
+              >
+                <hr v-show="clicked.includes(t.task_id)"/>
+                  {{ t.task }}
+                  <span class="time">{{ t.task_time }}</span>
+                  <span class="delete-btn" @click.stop="Deletetask(index)">x</span>
+              </div>
+              </transition-group>
           </div>
         </div>
-      </div>
+      </transition>
+      <div class="message" v-show="addmsg">Task added successfully!</div>
       <ErrorMessage v-show="nontask"/>
       <ErrorMessageTime v-show="nontime"/>
     </div>
-    <div class="filter-flame">
-      <div class="filter">
-        <div class="filter-title">Done !</div>
-        <div class="non-tasks" v-if="finishedTasks.length === 0">Nothing here.</div>
-        <div class="filter-tasks-flame">
-          <div class="done-tasks" v-for="(t, index) in finishedTasks" :key="index">{{ t.task }}</div>
+    <transition name="slide">
+      <div class="filter-flame" v-if="showworkflame">
+        <div class="filter">
+          <div class="filter-title">Done !</div>
+          <div class="non-tasks" v-if="finishedTasks.length === 0">Nothing here.</div>
+          <div class="filter-tasks-flame" ref="scrolldonetasksbox">
+            <transition-group name="fade">
+              <div class="done-tasks"
+                v-for="t in finishedTasks"
+                :key="t.task_id + '-done'"
+                :ref="el => donetaskrefs[t.task_id] = el"
+              >{{ t.task }}</div>
+            </transition-group>
+          </div>
+        </div>
+        <div class="filter">
+          <div class="filter-title">Undo !</div>
+          <div class="non-tasks" v-if="notFinishedTasks.length === 0">Nothing here.</div>
+          <div class="filter-tasks-flame" ref="scrollundotasksbox">
+            <transition-group name="fade">
+              <div class="not-done-tasks"
+                v-for="t in notFinishedTasks"
+                :key="t.task_id + '-undo'"
+                :ref="el => undotaskrefs[t.task_id] = el"
+              >{{ t.task }}</div>
+            </transition-group>
+          </div>
         </div>
       </div>
-      <div class="filter">
-        <div class="filter-title">Undo !</div>
-        <div class="non-tasks" v-if="notFinishedTasks.length === 0">Nothing here.</div>
-        <div class="filter-tasks-flame">
-         <div class="not-done-tasks" v-for="(t, index) in notFinishedTasks" :key="index">{{ t.task }}</div>
-        </div>
-      </div>
-    </div>
+    </transition>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick, reactive } from 'vue'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import ErrorMessageTime from '@/components/ErrorMessageTime.vue'
 import Calendar from '@/components/Calendar.vue'
@@ -72,11 +91,17 @@ export default {
     const task = ref('')
     const nontask = ref(false)
     const nontime = ref(false)
+    const addmsg = ref(false)
     const allTasks = ref([])
     const finishedTasks = ref([])
     const notFinishedTasks = ref([])
     const calendarclick = ref(false)
     const time = ref('')
+    const scrollalltasksbox = ref(null)
+    const scrollundotasksbox = ref(null)
+    const donetaskrefs = reactive({})
+    const undotaskrefs = reactive({})
+    const showworkflame = ref(false)
 
     const Togglecalendar = async () => {
       time.value = '' // 清空時間選擇
@@ -110,10 +135,22 @@ export default {
           clicked.value = clicked.value.filter(i => i !== taskId)
           finishedTasks.value = finishedTasks.value.filter(task => task.task_id !== taskId)
           notFinishedTasks.value.push(allTasks.value[index])
+
+          await nextTick() // 等待 DOM 更新
+          undotaskrefs[taskId]?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          }) // 將未完成任務滾動到可見區域
         } else { // 未完成 變 已完成
           clicked.value.push(taskId)
           finishedTasks.value = allTasks.value.filter(task => task.task_type)
           notFinishedTasks.value = notFinishedTasks.value.filter(task => task.task_id !== taskId)
+
+          await nextTick() // 等待 DOM 更新
+          donetaskrefs[taskId]?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          }) // 將已完成任務滾動到可見區域
         }
       } catch (error) {
         console.error('任務狀態更新失敗:', error)
@@ -151,12 +188,22 @@ export default {
 
           await Gettasks()
 
+          await nextTick() // 等待 DOM 更新
+          Scrollbottomalltasks() // 滾動任務列表到底部
+          Scrollbottomundotasks() // 滾動未完成任務列表到底部
+
           task.value = '' // 清空輸入框
           nontask.value = false // 隱藏錯誤訊息
 
           time.value = '' // 清空時間選擇
           calendarclick.value = false // 隱藏日曆
           nontime.value = false // 隱藏時間錯誤訊息
+
+          addmsg.value = true // 顯示新增成功訊息
+
+          setTimeout(() => {
+            addmsg.value = false
+          }, 3000) // 3秒後隱藏新增成功訊息
         } catch (error) {
           console.error('新增任務失敗:', error)
         }
@@ -204,7 +251,27 @@ export default {
       console.log('選擇的日期:', time.value)
     }
 
+    // 滾動任務列表到底部
+    const Scrollbottomalltasks = () => {
+      nextTick(() => {
+        if (scrollalltasksbox.value) {
+          scrollalltasksbox.value.scrollTop = scrollalltasksbox.value.scrollHeight
+        }
+      })
+    }
+
+    // 滾動未完成任務列表到底部
+    const Scrollbottomundotasks = () => {
+      nextTick(() => {
+        if (scrollundotasksbox.value) {
+          scrollundotasksbox.value.scrollTop = scrollundotasksbox.value.scrollHeight
+        }
+      })
+    }
+
     onMounted(async () => {
+      showworkflame.value = true // 顯示工作區域
+
       await Gettasks() // 在組件掛載時獲取任務資料
 
       // 初始化 clicked
@@ -218,17 +285,23 @@ export default {
       task,
       nontask,
       nontime,
+      addmsg,
       allTasks,
       finishedTasks,
       notFinishedTasks,
       calendarclick,
       time,
+      scrollalltasksbox,
+      donetaskrefs,
+      undotaskrefs,
+      showworkflame,
       Togglecalendar,
       Taskclick,
       Addtask,
       Deletetask,
       Gettasks,
-      Handletime
+      Handletime,
+      Scrollbottomalltasks
     }
   }
 }
@@ -350,6 +423,12 @@ hr{
   position: absolute;
   right: 20px;
 }
+.message {
+  color: #46A3FF;
+  font-size: 20px;
+  text-align: center;
+  margin-top: 20px;
+}
 .filter{
   background-color: #FFFFFF;
   width: 300px;
@@ -408,5 +487,34 @@ hr{
   padding-left: 20px;
   line-height: 30px;
   margin: 10px;
+}
+
+.slide-enter-active, .slide-leave-active {
+  transition: all 1s ease;
+}
+.slide-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.slide-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+.slide-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+.slide-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 2s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+.fade-enter-to, .fade-leave-from {
+  opacity: 1;
 }
 </style>
