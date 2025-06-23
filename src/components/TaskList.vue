@@ -29,7 +29,7 @@
               >
                 <hr v-show="clicked.includes(t.task_id)"/>
                   {{ t.task }}
-                  <span class="time">{{ t.task_time }}</span>
+                  <span class="time">{{ t.task_time_end }}</span>
                   <span class="delete-btn" @click.stop="Deletetask(index)">x</span>
               </div>
               </transition-group>
@@ -197,7 +197,7 @@ export default {
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ task: task.value, task_type: false, task_time: time.value }) // 將任務內容轉換為 JSON 格式
+            body: JSON.stringify({ task: task.value, task_type: false, task_time_start: today.value, task_time_end: time.value }) // 將任務內容轉換為 JSON 格式
           })
 
           if (!response.ok) {
