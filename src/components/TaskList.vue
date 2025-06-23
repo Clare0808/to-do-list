@@ -41,31 +41,47 @@
       <ErrorMessageTime v-show="nontime"/>
     </div>
     <transition name="slide">
-      <div class="filter-flame" v-if="showworkflame">
-        <div class="filter">
-          <div class="filter-title">Done !</div>
-          <div class="non-tasks" v-if="finishedTasks.length === 0">Nothing here.</div>
-          <div class="filter-tasks-flame" ref="scrolldonetasksbox">
-            <transition-group name="fade">
-              <div class="done-tasks"
-                v-for="t in finishedTasks"
-                :key="t.task_id + '-done'"
-                :ref="el => donetaskrefs[t.task_id] = el"
-              >{{ t.task }}</div>
-            </transition-group>
+      <div class="flame" v-if="showworkflame">
+        <div class="info">
+          <div class="counter">
+              <div class="counter-title">Done Tasks</div>
+              <div class="done-num">{{ donenum }}</div>
+          </div>
+          <div class="counter">
+              <div class="counter-title">Undo Tasks</div>
+              <div class="undo-num">{{ undonum }}</div>
+          </div>
+          <div class="date-flame">
+            <div class="date-title">Today</div>
+            <div class="date">{{ today }}</div>
           </div>
         </div>
-        <div class="filter">
-          <div class="filter-title">Undo !</div>
-          <div class="non-tasks" v-if="notFinishedTasks.length === 0">Nothing here.</div>
-          <div class="filter-tasks-flame" ref="scrollundotasksbox">
-            <transition-group name="fade">
-              <div class="not-done-tasks"
-                v-for="t in notFinishedTasks"
-                :key="t.task_id + '-undo'"
-                :ref="el => undotaskrefs[t.task_id] = el"
-              >{{ t.task }}</div>
-            </transition-group>
+        <div class="filter-flame" v-if="showworkflame">
+          <div class="filter">
+            <div class="filter-title">Done !</div>
+            <div class="non-tasks" v-if="finishedTasks.length === 0">Nothing here.</div>
+            <div class="filter-tasks-flame" ref="scrolldonetasksbox">
+              <transition-group name="fade">
+                <div class="done-tasks"
+                  v-for="t in finishedTasks"
+                  :key="t.task_id + '-done'"
+                  :ref="el => donetaskrefs[t.task_id] = el"
+                >{{ t.task }}</div>
+              </transition-group>
+            </div>
+          </div>
+          <div class="filter">
+            <div class="filter-title">Undo !</div>
+            <div class="non-tasks" v-if="notFinishedTasks.length === 0">Nothing here.</div>
+            <div class="filter-tasks-flame" ref="scrollundotasksbox">
+              <transition-group name="fade">
+                <div class="not-done-tasks"
+                  v-for="t in notFinishedTasks"
+                  :key="t.task_id + '-undo'"
+                  :ref="el => undotaskrefs[t.task_id] = el"
+                >{{ t.task }}</div>
+              </transition-group>
+            </div>
           </div>
         </div>
       </div>
@@ -102,6 +118,9 @@ export default {
     const donetaskrefs = reactive({})
     const undotaskrefs = reactive({})
     const showworkflame = ref(false)
+    const donenum = ref('')
+    const undonum = ref('')
+    const today = ref('')
 
     const Togglecalendar = async () => {
       time.value = '' // 清空時間選擇
@@ -155,6 +174,8 @@ export default {
       } catch (error) {
         console.error('任務狀態更新失敗:', error)
       }
+
+      Gettasknumber() // 更新任務數量統計
     }
 
     // 新增任務
@@ -191,6 +212,8 @@ export default {
           await nextTick() // 等待 DOM 更新
           Scrollbottomalltasks() // 滾動任務列表到底部
           Scrollbottomundotasks() // 滾動未完成任務列表到底部
+
+          await Gettasknumber() // 更新任務數量統計
 
           task.value = '' // 清空輸入框
           nontask.value = false // 隱藏錯誤訊息
@@ -229,6 +252,8 @@ export default {
       }
 
       await Gettasks() // 重新獲取任務列表
+
+      await Gettasknumber() // 更新任務數量統計
     }
 
     // 取得紀錄
@@ -269,10 +294,36 @@ export default {
       })
     }
 
+    // 獲取任務數量
+    const Gettasknumber = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/list/history')
+        const data = await response.json()
+
+        donenum.value = data.tasks.filter(task => task.task_type).length
+        undonum.value = data.tasks.filter(task => !task.task_type).length
+      } catch (error) {
+        console.error('獲取任務失敗:', error)
+      }
+    }
+
+    // 獲取今天日期
+    const Gettodaydate = () => {
+      const date = new Date()
+      const month = String(date.getMonth() + 1)
+      const day = String(date.getDate())
+
+      today.value = month + ' / ' + day
+    }
+
     onMounted(async () => {
       showworkflame.value = true // 顯示工作區域
 
       await Gettasks() // 在組件掛載時獲取任務資料
+
+      await Gettasknumber() // 獲取任務數量
+
+      await Gettodaydate() // 獲取今天日期
 
       // 初始化 clicked
       clicked.value = allTasks.value
@@ -295,13 +346,18 @@ export default {
       donetaskrefs,
       undotaskrefs,
       showworkflame,
+      donenum,
+      undonum,
+      today,
       Togglecalendar,
       Taskclick,
       Addtask,
       Deletetask,
       Gettasks,
       Handletime,
-      Scrollbottomalltasks
+      Scrollbottomalltasks,
+      Gettasknumber,
+      Gettodaydate
     }
   }
 }
@@ -317,7 +373,7 @@ export default {
   height: 100vh;
 }
 .title{
-  width: 380px;
+  width: 340px;
   font-size: 30px;
   font-weight: bold;
   color: #46A3FF;
@@ -335,6 +391,7 @@ export default {
   align-items: center;
   background-color: #FFFFFF;
   padding: 30px;
+  margin-right: 20px;
   border-radius: 12px;
   box-shadow: 0px 0px 5px 3px #ceceff;
   position: relative;
@@ -346,7 +403,7 @@ export default {
   margin-bottom: 30px;
 }
 .input{
-  width: 270px;
+  width: 240px;
   height: 30px;
   border: 2px solid #ACD6FF;
   border-radius: 12px;
@@ -357,7 +414,7 @@ export default {
   outline: none;
 }
 .add-btn{
-  width: 60px;
+  width: 50px;
   height: 35px;
   background-color: #46A3FF;
   color: #FFFFFF;
@@ -383,12 +440,12 @@ export default {
   color: #46A3FF;
 }
 .tasks-flame{
-  max-height: 300px;
+  max-height: 350px;
   overflow-y: auto;
   flex: 1;
 }
 .task{
-  width: 350px;
+  width: 300px;
   height: 30px;
   color: #46A3FF;
   background-color: #ECF5FF;
@@ -408,7 +465,7 @@ export default {
   background-color: #F7FBFF;
 }
 hr{
-  width: 380px;
+  width: 330px;
   border: 1px solid #CECEFF;
   position: absolute;
   top: 26%;
@@ -429,13 +486,78 @@ hr{
   text-align: center;
   margin-top: 20px;
 }
+.flame {
+  margin-left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.info {
+  display: flex;
+  justify-content: center;
+}
+.counter {
+  background-color: #FFFFFF;
+  width: 180px;
+  padding: 20px;
+  margin-right: 20px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  box-shadow: 0px 0px 5px 3px #ceceff;
+}
+.counter-title {
+  color: #46A3FF;
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #CECEFF;
+}
+.done-num {
+  font-size: 40px;
+  font-weight: bold;
+  color: #02DF82;
+  padding: 0 20px;
+}
+.undo-num {
+  font-size: 40px;
+  font-weight: bold;
+  color: #FF5151;
+  padding: 0 20px;
+}
+.date-flame {
+  background-color: #FFFFFF;
+  width: 120px;
+  padding: 20px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  box-shadow: 0px 0px 5px 3px #ceceff;
+}
+.date-title {
+  color: #46A3FF;
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #CECEFF;
+}
+.date {
+  color: #005AB5;
+  font-size: 40px;
+  font-weight: bold;
+}
+.filter-flame {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .filter{
   background-color: #FFFFFF;
-  width: 300px;
+  width: 250px;
   padding: 30px;
   border-radius: 12px;
-  margin: 20px;
-  margin-left: 40px;
+  margin: 10px;
   text-align: center;
   box-shadow: 0px 0px 5px 3px #ceceff;
 }
