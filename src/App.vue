@@ -2,7 +2,9 @@
   <div class="flame">
     <nav>
       <div class="user">
-        <i class="fa-solid fa-user" id="user"></i>
+        <router-link to="/login">
+          <i class="fa-solid fa-user" id="user"></i>
+        </router-link>
         <div class="user-name">User</div>
       </div>
       <router-link to="/">Home</router-link>
