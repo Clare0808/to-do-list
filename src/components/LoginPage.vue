@@ -16,9 +16,11 @@
                     v-model.trim="password"/>
             </div>
             <div class="button">
-                <div class="sign-in-btn">Sign In</div>
-                <div class="sign-up-btn" @click="toggleSignUp">Sign Up</div>
+                <div class="sign-in-btn" @click="LoginInfo">Sign In</div>
+                <div class="sign-up-btn" @click="Togglesignup">Sign Up</div>
             </div>
+            <div class="error" v-show="error">{{ errormsg }}</div>
+            <div class="success" v-show="success">{{ successmsg }}</div>
         </div>
     </transition>
     <transition name="slide" mode="out-in">
@@ -50,8 +52,10 @@
             </div>
             <div class="button">
                 <div class="sign-in-btn" @click="Sendinfo">Sign Up</div>
-                <div class="sign-up-btn" @click="toggleSignIn">Sign In</div>
+                <div class="sign-up-btn" @click="Togglesignin">Sign In</div>
             </div>
+            <div class="error" v-show="error">{{ errormsg }}</div>
+            <div class="success" v-show="success">{{ successmsg }}</div>
         </div>
     </transition>
  </div>
@@ -59,6 +63,7 @@
 
 <script>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 export default {
   name: 'LoginPage',
@@ -69,39 +74,161 @@ export default {
     const username = ref('')
     const password = ref('')
     const conPassword = ref('')
+    const error = ref(false)
+    const errormsg = ref('')
+    const success = ref(false)
+    const successmsg = ref('')
+    const router = useRouter()
 
-    const toggleSignIn = () => {
+    // 切換到登入頁面
+    const Togglesignin = () => {
       signIn.value = true
       signUp.value = false
+
+      error.value = false // 清除錯誤訊息
+      success.value = false // 清除成功訊息
+
+      CleanInputFlame() // 清空輸入框
     }
 
-    const toggleSignUp = () => {
+    // 切換到註冊頁面
+    const Togglesignup = () => {
       signIn.value = false
       signUp.value = true
+
+      error.value = false // 清除錯誤訊息
+      success.value = false // 清除成功訊息
+
+      CleanInputFlame() // 清空輸入框
     }
 
+    // 發送使用者資訊到後端
     const Sendinfo = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/signup', { // 向後端發送請求
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ username: username.value, mail: mail.value, password: password.value }) // 將任務內容轉換為 JSON 格式
-        })
+      AssureSignUpInputFlame() // 確認輸入框是否有填寫內容
 
-        if (!response.ok) {
-          throw new Error('Network response was not ok')
+      await AssureEmailDiff() // 檢查郵箱是否已存在
+
+      if (!error.value) {
+        if (password.value !== conPassword.value) { // 檢查密碼是否一致
+          error.value = true
+          errormsg.value = 'Password does not match !'
+        } else {
+          try {
+            const response = await fetch('http://localhost:5000/api/signup', { // 向後端發送請求
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ username: username.value, mail: mail.value, password: password.value }) // 將任務內容轉換為 JSON 格式
+            })
+
+            if (!response.ok) {
+              throw new Error('Network response was not ok')
+            }
+
+            console.log('新增使用者資訊成功:', await response.json())
+          } catch (error) {
+            console.error('新增使用者資訊失敗:', error)
+          }
+
+          CleanInputFlame() // 清空輸入框
+
+          error.value = false // 清除錯誤訊息
+
+          success.value = true // 顯示成功訊息
+          successmsg.value = 'Sign up successfully !' // 設置成功訊息
+
+          setTimeout(() => {
+            Togglesignin()
+          }, 1000) // 1秒後切換到登入頁面
         }
-
-        console.log('新增使用者資訊成功:', await response.json())
-      } catch (error) {
-        console.error('新增使用者資訊失敗:', error)
       }
+    }
 
-      // 清空輸入框
-      username.value = ''
+    // 登入使用者資訊
+    const LoginInfo = async () => {
+      AssureSignInInputFlame() // 確認輸入框是否有填寫內容
+
+      if (!error.value) {
+        const response = await fetch('http://localhost:5000/api/login')
+        const data = await response.json()
+
+        const user = data.data.find(user => user.mail === mail.value) // 查找使用者郵箱
+
+        if (user) {
+          if (user.password.trim() === password.value.trim()) {
+            // 清空輸入框
+            mail.value = ''
+            password.value = ''
+
+            error.value = false // 清除錯誤訊息
+
+            success.value = true // 顯示成功訊息
+            successmsg.value = 'Login successfully !' // 設置成功訊息
+
+            setTimeout(() => {
+              router.push('/')
+            }, 1000) // 1秒後跳轉到首頁
+          } else {
+            error.value = true
+            errormsg.value = 'Incorrect password !'
+          }
+        } else {
+          error.value = true
+          errormsg.value = 'User not found !'
+        }
+      }
+    }
+
+    // 檢查郵箱是否已存在
+    const AssureEmailDiff = async () => {
+      const response = await fetch('http://localhost:5000/api/login')
+      const data = await response.json()
+
+      const userMail = data.data.map(user => user.mail) // 獲取所有使用者郵箱
+
+      if (userMail.includes(mail.value)) { // 檢查郵箱是否已存在
+        error.value = true
+        errormsg.value = 'This e-mail is already registered !'
+      }
+    }
+
+    // 檢查登入輸入框是否有填寫內容
+    const AssureSignUpInputFlame = () => {
+      if (username.value === '') {
+        error.value = true
+        errormsg.value = 'Please enter your name !'
+      } else if (mail.value === '') {
+        error.value = true
+        errormsg.value = 'Please enter your e-mail !'
+      } else if (password.value === '') {
+        error.value = true
+        errormsg.value = 'Please enter your password !'
+      } else if (conPassword.value === '') {
+        error.value = true
+        errormsg.value = 'Please enter your password again !'
+      } else {
+        error.value = false
+      }
+    }
+
+    // 檢查註冊輸入框是否有填寫內容
+    const AssureSignInInputFlame = () => {
+      if (mail.value === '') {
+        error.value = true
+        errormsg.value = 'Please enter your e-mail !'
+      } else if (password.value === '') {
+        error.value = true
+        errormsg.value = 'Please enter your password !'
+      } else {
+        error.value = false
+      }
+    }
+
+    // 清空登入輸入框
+    const CleanInputFlame = () => {
       mail.value = ''
+      username.value = ''
       password.value = ''
       conPassword.value = ''
     }
@@ -117,9 +244,18 @@ export default {
       mail,
       password,
       conPassword,
-      toggleSignIn,
-      toggleSignUp,
-      Sendinfo
+      error,
+      errormsg,
+      success,
+      successmsg,
+      Togglesignin,
+      Togglesignup,
+      Sendinfo,
+      LoginInfo,
+      AssureSignInInputFlame,
+      AssureSignUpInputFlame,
+      AssureEmailDiff,
+      CleanInputFlame
     }
   }
 }
@@ -196,29 +332,43 @@ export default {
   color: #46A3FF;
 }
 .sign-up-btn {
-    width: 100px;
-    height: 40px;
-    background-color: #CECEFF;
-    color: #FFFFFF;
-    border-radius: 22px;
-    line-height: 40px;
-    text-align: center;
-    margin: 10px;
+  width: 100px;
+  height: 40px;
+  background-color: #CECEFF;
+  color: #FFFFFF;
+  border-radius: 22px;
+  line-height: 40px;
+  text-align: center;
+  margin: 10px;
 }
 .sign-up-btn:hover{
   background-color: #ACD6FF;
   color: #46A3FF;
 }
 .sign-up {
-    background-color: #FFFFFF;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0px 0px 5px 3px #ceceff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: absolute;
-    transition: transform 0.6s ease, opacity 0.6s ease;
+  background-color: #FFFFFF;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0px 0px 5px 3px #ceceff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  transition: transform 0.6s ease, opacity 0.6s ease;
+}
+.error {
+  position: absolute;
+  bottom: 10px;
+  color: #FF5151;
+  font-size: 20px;
+  text-align: center;
+}
+.success {
+  position: absolute;
+  bottom: 10px;
+  color: #46A3FF;
+  font-size: 20px;
+  text-align: center;
 }
 
 .slide-enter-active, .slide-leave-active {

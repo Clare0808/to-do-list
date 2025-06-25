@@ -20,3 +20,11 @@ def signup():
     print("已存入資料庫: ", username, mail, password)
 
     return jsonify({"message": "已存入資料庫"}), 201 # 回傳狀態碼
+
+@api_bp.route("/login", methods=["GET"])
+def login():
+    infos = Login.query.all()  # 取得所有使用者資訊
+
+    data_list = [{"username": info.username, "mail": info.mail, "password": info.password} for info in infos]
+
+    return jsonify({"data": data_list}), 200  # 回傳使用者資訊列表給前端
