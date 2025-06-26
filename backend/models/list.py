@@ -8,6 +8,7 @@ class Tasks(db.Model):
     task_type = db.Column(db.Boolean, default=False)
     task_time_start = db.Column(db.Text, nullable=True)
     task_time_end = db.Column(db.Text, nullable=True)
+    user_id = db.Column(db.Text, nullable=False)
 
     def __repr__(self):
         return f'<Tasks {self.task_id}>'

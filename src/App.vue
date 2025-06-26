@@ -1,20 +1,51 @@
 <template>
   <div class="flame">
-    <nav>
-      <div class="user">
-        <router-link to="/login">
-          <i class="fa-solid fa-user" id="user"></i>
-        </router-link>
-        <div class="user-name">User</div>
-      </div>
-      <router-link to="/">Home</router-link>
-      <router-link to="/list">List</router-link>
-      <router-link to="/status">Status</router-link>
-      <i class="fa-solid fa-arrow-right-from-bracket" id="log-out"></i>
-    </nav>
+    <transition-group name="fade">
+      <nav v-if="showNav">
+        <div class="user">
+          <router-link to="/login">
+            <i class="fa-solid fa-user" id="user"></i>
+          </router-link>
+          <div class="user-name">{{ userName }}</div>
+        </div>
+        <router-link to="/">Home</router-link>
+        <router-link to="/list">List</router-link>
+        <router-link to="/status">Status</router-link>
+        <i class="fa-solid fa-arrow-right-from-bracket" id="log-out" @click="Logout"></i>
+      </nav>
+    </transition-group>
     <router-view/>
   </div>
 </template>
+
+<script>
+import { userName, userMail, showNav } from '@/components/LoginPage.vue'
+import { useRouter } from 'vue-router'
+
+export default {
+  setup () {
+    const router = useRouter()
+
+    // 登出功能
+    const Logout = () => {
+      userMail.value = '' // 清除使用者郵件
+      userName.value = '' // 清除使用者名稱
+
+      showNav.value = false // 隱藏導航欄
+
+      router.push('/') // 導向登入頁面
+    }
+
+    return {
+      userName,
+      userMail,
+      showNav,
+      router,
+      Logout
+    }
+  }
+}
+</script>
 
 <style>
 #app {
@@ -114,5 +145,17 @@ nav a:hover{
 #log-out:hover{
   color: #46A3FF;
   transform: translateY(-3px);
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: all 1s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+.fade-enter-to, .fade-leave-from {
+  opacity: 1;
+  transform: translatex(0);
 }
 </style>

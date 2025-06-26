@@ -65,6 +65,10 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
+export const userMail = ref('')
+export const userName = ref('')
+export const showNav = ref(false)
+
 export default {
   name: 'LoginPage',
   setup () {
@@ -157,6 +161,11 @@ export default {
 
         if (user) {
           if (user.password.trim() === password.value.trim()) {
+            userMail.value = user.mail // 設置全局使用者郵箱
+            userName.value = user.username // 設置全局使用者名稱
+            localStorage.setItem('userMail', userMail.value) // 將使用者郵箱存入 localStorage
+            localStorage.setItem('userName', userName.value) // 將使用者名稱存入 localStorage
+
             // 清空輸入框
             mail.value = ''
             password.value = ''
@@ -168,6 +177,7 @@ export default {
 
             setTimeout(() => {
               router.push('/')
+              showNav.value = true // 顯示導航欄
             }, 1000) // 1秒後跳轉到首頁
           } else {
             error.value = true
@@ -326,6 +336,7 @@ export default {
     line-height: 40px;
     text-align: center;
     margin: 10px;
+    cursor: pointer;
 }
 .sign-in-btn:hover{
   background-color: #ACD6FF;
@@ -340,6 +351,7 @@ export default {
   line-height: 40px;
   text-align: center;
   margin: 10px;
+  cursor: pointer;
 }
 .sign-up-btn:hover{
   background-color: #ACD6FF;

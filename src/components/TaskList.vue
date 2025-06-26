@@ -94,6 +94,7 @@ import { ref, onMounted, nextTick, reactive } from 'vue'
 import ErrorMessage from '@/components/ErrorMessage.vue'
 import ErrorMessageTime from '@/components/ErrorMessageTime.vue'
 import Calendar from '@/components/Calendar.vue'
+import { userMail } from '@/components/LoginPage.vue'
 
 export default {
   name: 'TaskList',
@@ -197,7 +198,13 @@ export default {
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ task: task.value, task_type: false, task_time_start: today.value, task_time_end: time.value }) // 將任務內容轉換為 JSON 格式
+            body: JSON.stringify({
+              task: task.value,
+              task_type: false,
+              task_time_start: today.value,
+              task_time_end: time.value,
+              user_id: userMail.value
+            }) // 將任務內容轉換為 JSON 格式
           })
 
           if (!response.ok) {
@@ -262,9 +269,9 @@ export default {
         const response = await fetch('http://localhost:5000/api/list/history')
         const history = await response.json()
 
-        allTasks.value = history.tasks.filter(task => task.task.trim() !== '')
-        finishedTasks.value = allTasks.value.filter(task => task.task_type)
-        notFinishedTasks.value = allTasks.value.filter(task => !task.task_type)
+        allTasks.value = history.tasks.filter(task => task.task.trim() !== '' && task.user_id === userMail.value)
+        finishedTasks.value = allTasks.value.filter(task => task.task_type && task.user_id === userMail.value)
+        notFinishedTasks.value = allTasks.value.filter(task => !task.task_type && task.user_id === userMail.value)
       } catch (error) {
         console.error('獲取任務失敗:', error)
       }
@@ -300,8 +307,8 @@ export default {
         const response = await fetch('http://localhost:5000/api/list/history')
         const data = await response.json()
 
-        donenum.value = data.tasks.filter(task => task.task_type).length
-        undonum.value = data.tasks.filter(task => !task.task_type).length
+        donenum.value = data.tasks.filter(task => task.task_type && task.user_id === userMail.value).length
+        undonum.value = data.tasks.filter(task => !task.task_type && task.user_id === userMail.value).length
       } catch (error) {
         console.error('獲取任務失敗:', error)
       }
@@ -349,6 +356,7 @@ export default {
       donenum,
       undonum,
       today,
+      userMail,
       Togglecalendar,
       Taskclick,
       Addtask,

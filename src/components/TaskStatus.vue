@@ -31,6 +31,7 @@
 
 <script>
 import { ref, onMounted, watch } from 'vue'
+import { userMail } from '@/components/LoginPage.vue'
 import { Chart, registerables } from 'chart.js'
 
 Chart.register(...registerables) // 註冊 Chart.js
@@ -61,8 +62,8 @@ export default {
         const response = await fetch('http://localhost:5000/api/list/history')
         const data = await response.json()
 
-        donenum.value = data.tasks.filter(task => task.task_type).length
-        undonum.value = data.tasks.filter(task => !task.task_type).length
+        donenum.value = data.tasks.filter(task => task.task_type && task.user_id === userMail.value).length
+        undonum.value = data.tasks.filter(task => !task.task_type && task.user_id === userMail.value).length
 
         Calculatepercentage() // 獲取數據後計算百分比
       } catch (error) {

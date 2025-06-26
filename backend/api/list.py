@@ -14,14 +14,21 @@ def get_task():
         task_type = data.get("task_type")
         task_time_start = data.get("task_time_start")
         task_time_end = data.get("task_time_end")
+        user_id = data.get("user_id")
 
-        new_task = Tasks(task=task_content, task_type=task_type, task_time_start=task_time_start, task_time_end=task_time_end) # 建立新的任務
+        new_task = Tasks(
+            task=task_content, 
+            task_type=task_type, 
+            task_time_start=task_time_start,
+            task_time_end=task_time_end,
+            user_id=user_id    
+        ) # 建立新的任務
         
         # 將任務存入資料庫
         db.session.add(new_task)
         db.session.commit()
 
-        print("已存入資料庫: ", task_content, task_type, task_time_start, task_time_end)
+        print("已存入資料庫: ", task_content, task_type, task_time_start, task_time_end, user_id)
 
         return jsonify({"message": "已存入資料庫"}), 201 # 回傳狀態碼
 
@@ -30,7 +37,14 @@ def get_task():
 def send_task():
     tasks = Tasks.query.all() # 取得所有任務
 
-    tasks_list = [{"task_id": task.task_id, "task": task.task, "task_type": task.task_type, "task_time_start": task.task_time_start, "task_time_end": task.task_time_end} for task in tasks]
+    tasks_list = [{
+        "task_id": task.task_id, 
+        "task": task.task, 
+        "task_type": task.task_type, 
+        "task_time_start": task.task_time_start, 
+        "task_time_end": task.task_time_end,
+        "user_id": task.user_id
+    } for task in tasks]
 
     return jsonify({"tasks": tasks_list}), 200 # 回傳任務列表給前端
 
