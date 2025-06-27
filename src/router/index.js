@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import Tasklist from '@/components/TaskList.vue'
 import TaskStatus from '@/components/TaskStatus.vue'
+import TaskSchedule from '@/components/TaskSchedule.vue'
 import LoginPage from '@/components/LoginPage.vue'
 
 const routes = [
@@ -19,6 +20,11 @@ const routes = [
     path: '/status',
     name: 'TaskStatus',
     component: TaskStatus
+  },
+  {
+    path: '/schedule',
+    name: 'TaskSchedule',
+    component: TaskSchedule
   },
   {
     path: '/login',

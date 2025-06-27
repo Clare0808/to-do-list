@@ -11,6 +11,7 @@
         <router-link to="/">Home</router-link>
         <router-link to="/list">List</router-link>
         <router-link to="/status">Status</router-link>
+        <router-link to="/schedule">Schedule</router-link>
         <i class="fa-solid fa-arrow-right-from-bracket" id="log-out" @click="Logout"></i>
       </nav>
     </transition-group>

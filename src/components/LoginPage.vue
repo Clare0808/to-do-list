@@ -13,7 +13,8 @@
                 <div class="input-title">Password</div>
                 <input class="input"
                     placehoder="Please enter your password ..."
-                    v-model.trim="password"/>
+                    v-model.trim="password"
+                    type="password"/>
             </div>
             <div class="button">
                 <div class="sign-in-btn" @click="LoginInfo">Sign In</div>
@@ -42,13 +43,15 @@
                 <div class="input-title">Password</div>
                 <input class="input"
                     placehoder="Please enter your password ..."
-                    v-model.trim="password"/>
+                    v-model.trim="password"
+                    type="password"/>
             </div>
             <div class="input-flame">
                 <div class="input-title">Confirm Password</div>
                 <input class="input"
                     placehoder="Please enter your password again ..."
-                    v-model.trim="conPassword"/>
+                    v-model.trim="conPassword"
+                    type="password"/>
             </div>
             <div class="button">
                 <div class="sign-in-btn" @click="Sendinfo">Sign Up</div>
