@@ -1,6 +1,6 @@
 <template>
   <div class="flame">
-    <transition-group name="fade">
+    <transition-group name="page">
       <nav v-if="showNav">
         <div class="user">
           <router-link to="/login">
@@ -148,14 +148,14 @@ nav a:hover{
   transform: translateY(-3px);
 }
 
-.fade-enter-active, .fade-leave-active {
+.page-enter-active, .page-leave-active {
   transition: all 1s ease;
 }
-.fade-enter-from, .fade-leave-to {
+.page-enter-from, .page-leave-to {
   opacity: 0;
   transform: translateX(-20px);
 }
-.fade-enter-to, .fade-leave-from {
+.page-enter-to, .page-leave-from {
   opacity: 1;
   transform: translatex(0);
 }
