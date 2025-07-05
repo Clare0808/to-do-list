@@ -11,8 +11,12 @@
   },
   "dependencies": {
     "chart.js": "^4.5.0",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "chartjs-adapter-moment": "^1.0.1",
     "core-js": "^3.8.3",
+    "frappe-gantt": "^1.0.3",
     "vue": "^3.2.13",
+    "vue-ganttastic": "^0.9.34",
     "vue-router": "^4.0.3"
   },
   "devDependencies": {

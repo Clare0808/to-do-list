@@ -26,11 +26,13 @@
           </div>
         </div>
       </transition>
+      <GannttChart/>
     </div>
 </template>
 
 <script>
 import { ref, onMounted, watch } from 'vue'
+import GannttChart from '@/components/GannttChart.vue'
 import { userMail } from '@/components/LoginPage.vue'
 import { Chart, registerables } from 'chart.js'
 
@@ -38,6 +40,9 @@ Chart.register(...registerables) // 註冊 Chart.js
 
 export default {
   name: 'TaskStatus',
+  components: {
+    GannttChart
+  },
   setup () {
     const donenum = ref('')
     const undonum = ref('')

@@ -6,8 +6,8 @@ class Tasks(db.Model):
     task_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     task = db.Column(db.Text, nullable=False)
     task_type = db.Column(db.Boolean, default=False)
-    task_time_start = db.Column(db.Text, nullable=True)
-    task_time_end = db.Column(db.Text, nullable=True)
+    task_time_start = db.Column(db.Date, nullable=True)
+    task_time_end = db.Column(db.Date, nullable=True)
     user_id = db.Column(db.Text, nullable=False)
 
     def __repr__(self):

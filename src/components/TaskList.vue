@@ -53,7 +53,7 @@
           </div>
           <div class="date-flame">
             <div class="date-title">Today</div>
-            <div class="date">{{ today }}</div>
+            <div class="date">{{ todayShow }}</div>
           </div>
         </div>
         <div class="filter-flame" v-if="showworkflame">
@@ -122,6 +122,7 @@ export default {
     const donenum = ref('')
     const undonum = ref('')
     const today = ref('')
+    const todayShow = ref('')
 
     const Togglecalendar = async () => {
       time.value = '' // 清空時間選擇
@@ -272,6 +273,13 @@ export default {
         allTasks.value = history.tasks.filter(task => task.task.trim() !== '' && task.user_id === userMail.value)
         finishedTasks.value = allTasks.value.filter(task => task.task_type && task.user_id === userMail.value)
         notFinishedTasks.value = allTasks.value.filter(task => !task.task_type && task.user_id === userMail.value)
+
+        allTasks.value.forEach(task => {
+          const date = new Date(task.task_time_end)
+          const month = date.getMonth() + 1
+          const day = date.getDate()
+          task.task_time_end = `${month} / ${day}`
+        })
       } catch (error) {
         console.error('獲取任務失敗:', error)
       }
@@ -317,10 +325,12 @@ export default {
     // 獲取今天日期
     const Gettodaydate = () => {
       const date = new Date()
-      const month = String(date.getMonth() + 1)
-      const day = String(date.getDate())
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0') // 月份從0開始，所以需要加1並補零
+      const day = String(date.getDate()).padStart(2, '0')
 
-      today.value = month + ' / ' + day
+      today.value = year + '-' + month + '-' + day // 格式化日期為 YYYY-MM-DD
+      todayShow.value = month + ' / ' + day // 顯示格式為 MM / DD
     }
 
     onMounted(async () => {
@@ -356,6 +366,7 @@ export default {
       donenum,
       undonum,
       today,
+      todayShow,
       userMail,
       Togglecalendar,
       Taskclick,
@@ -552,7 +563,7 @@ hr{
 }
 .date {
   color: #005AB5;
-  font-size: 40px;
+  font-size: 35px;
   font-weight: bold;
 }
 .filter-flame {

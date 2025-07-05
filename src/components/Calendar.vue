@@ -55,7 +55,11 @@ export default {
       chosenday.value = index - remainderdays.value + 1 // 將索引轉換為實際日期
 
       const selectedTime = (todaymonth.value + 1) + ' / ' + chosenday.value
-      emit('selectTime', selectedTime) // 傳出時間
+
+      const [month, day] = selectedTime.split(' / ')
+      const year = new Date().getFullYear() // 獲取當前年份
+      const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}` // 格式化日期為 YYYY-MM-DD
+      emit('selectTime', formattedDate) // 傳出時間
     }
 
     // 取得當前月份

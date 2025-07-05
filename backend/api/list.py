@@ -2,6 +2,7 @@ from flask import request, jsonify
 from database import db
 from . import api_bp
 from models.list import Tasks
+from datetime import datetime
 
 # 新增與接收任務
 @api_bp.route("/list", methods=["GET", "POST"])
@@ -15,6 +16,10 @@ def get_task():
         task_time_start = data.get("task_time_start")
         task_time_end = data.get("task_time_end")
         user_id = data.get("user_id")
+
+        # 將字串轉換為日期格式
+        task_time_start = datetime.strptime(task_time_start, '%Y-%m-%d').date()
+        task_time_end = datetime.strptime(task_time_end, '%Y-%m-%d').date()
 
         new_task = Tasks(
             task=task_content, 
