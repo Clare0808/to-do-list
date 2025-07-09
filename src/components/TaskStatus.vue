@@ -2,21 +2,21 @@
     <div class="status">
       <transition name="fade">
         <div class="flame" v-if="show">
-          <div class="done-flame">
+          <div class="counter-flame">
             <div class="counter">
                 <div class="title">Done Tasks</div>
                 <div class="done-num">{{ donenum }}</div>
             </div>
+            <div class="counter">
+                <div class="title">Undo Tasks</div>
+                <div class="undo-num">{{ undonum }}</div>
+            </div>
+          </div>
+          <div class="doughnut-flame">
             <div class="chart-flame">
               <div class="chart-title">Completion Rate</div>
               <canvas ref="donechart"></canvas>
               <div class="done-rate">{{ donepercentage }}%</div>
-            </div>
-          </div>
-          <div class="undo-flame">
-            <div class="counter">
-                <div class="title">Undo Tasks</div>
-                <div class="undo-num">{{ undonum }}</div>
             </div>
             <div class="chart-flame">
               <div class="chart-title">Incompletion Rate</div>
@@ -160,7 +160,7 @@ export default {
     justify-content: center;
     align-items: center;
 }
-.done-flame{
+.counter-flame{
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -173,6 +173,7 @@ export default {
     align-items: center;
     background-color: #FFFFFF;
     padding: 20px;
+    margin: 10px;
     border-radius: 12px;
     box-shadow: 0px 0px 5px 3px #ceceff;
 }
@@ -194,18 +195,17 @@ export default {
     color: #FF5151;
     padding: 0 20px;
 }
-.undo-flame {
+.doughnut-flame {
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 .chart-flame {
-  width: 300px;
+  width: 280px;
   background-color: #FFFFFF;
   padding: 20px;
   border-radius: 12px;
-  margin: 20px;
+  margin: 10px;
   box-shadow: 0px 0px 5px 3px #ceceff;
   display: flex;
   flex-direction: column;
@@ -213,7 +213,7 @@ export default {
   position: relative;
 }
 .chart-title {
-  width: 300px;
+  width: 280px;
   font-size: 30px;
   font-weight: bold;
   color: #46A3FF;
@@ -222,8 +222,8 @@ export default {
   border-bottom: 2px solid #CECEFF;
 }
 canvas {
-  max-width: 200px;
-  max-height: 200px;
+  max-width: 180px;
+  max-height: 180px;
 }
 .done-rate {
   font-size: 40px;
