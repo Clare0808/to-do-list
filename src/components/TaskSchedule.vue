@@ -63,7 +63,7 @@ export default {
     const weeks = ref([
       'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
     ])
-    const lastdayweek = ref(6)
+    const firstdayweek = ref(0)
     const days = ref([
       31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
     ])
@@ -71,6 +71,7 @@ export default {
     const monthalldays = ref([])
     const remainderdays = ref(0)
     const chosenday = ref('')
+    const year = ref(new Date().getFullYear()) // 當前年份
     const outputday = ref('')
     const showmarkred = ref({})
     const showmarkgreen = ref({})
@@ -95,14 +96,22 @@ export default {
       currentmonth.value = month.value[todaymonth.value]
       currentday.value = days.value[todaymonth.value]
 
-      remainderdays.value = 6 - lastdayweek.value // 計算剩餘天數
+      CountFirstWeek() // 計算上個月的剩餘天數
+    }
+
+    // 計算上個月的剩餘天數
+    const CountFirstWeek = () => {
+      const date = new Date(year.value, todaymonth.value, 1) // 獲取當月第一天的日期
+      firstdayweek.value = date.getDay() // 當月第一天的星期數
+
+      remainderdays.value = 7 - firstdayweek.value // 計算剩餘天數
     }
 
     // 創建當月的所有天數
     const Createdays = () => {
       monthalldays.value = [] // 清空當月所有天數
 
-      remainderdays.value = 6 - lastdayweek.value
+      CountFirstWeek()
 
       remainderdays.value = (7 - remainderdays.value) % 7 // 更新剩餘天數並確保為 7 的倍數
 
@@ -113,17 +122,25 @@ export default {
 
       for (let i = 1; i <= currentday.value; i++) {
         monthalldays.value.push(i)
-
-        lastdayweek.value = (lastdayweek.value + 1) % 7 // 更新最後一天的星期數
       }
     }
 
     // 切換月份
     const Changemonth = (num) => {
+      const current = todaymonth.value
+
       if (num < 0) {
         todaymonth.value = (todaymonth.value - 1 + 12) % 12 // 確保月份在 0 ~ 12 間
+
+        if (todaymonth.value === 11 && current === 0) {
+          year.value -= 1 // 如果月份小於 0，則年份減 1
+        }
       } else {
         todaymonth.value = (todaymonth.value + 1 + 12) % 12
+
+        if (todaymonth.value === 0 && current === 11) {
+          year.value += 1 // 如果月份超過 12，則年份加 1
+        }
       }
 
       currentmonth.value = month.value[todaymonth.value]
@@ -132,34 +149,9 @@ export default {
       currentclick.value = '' // 重置當前點擊的日期
 
       Createdays()
+
+      CountFirstWeek() // 計算上個月的剩餘天數
     }
-
-    // 獲取任務時間
-    /* const Gettasktime = async () => {
-      let time = (todaymonth.value + 1) + ' / ' + chosenday.value
-      if (currentclick.value === '' || chosenday.value === '') {
-        time = ''
-      }
-
-      try {
-        const response = await fetch('http://localhost:5000/api/list/time', { // 向後端發送請求
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ time: time }) // 將任務內容轉換為 JSON 格式
-        })
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok')
-        }
-
-        const result = await response.json()
-        console.log('成功新增任務時間', result)
-      } catch (error) {
-        console.error('新增任務時間失敗:', error)
-      }
-    } */
 
     // 創建標記
     const CreateMark = async () => {
@@ -170,11 +162,15 @@ export default {
       showmarkgreen.value = {} // 初始化綠色標記對象
 
       for (const task of tasks) {
+        // 將任務時間轉換為日期格式
+        const date = new Date(task.task_time_end)
+        const month = date.getMonth() + 1
+        const day = date.getDate()
+        const time = `${month} / ${day}`
+
         if (task.user_id === userMail.value && !task.task_type) {
-          const time = task.task_time_end
           showmarkred.value[time] = true // 根據任務時間設置標記
         } else if (task.user_id === userMail.value && task.task_type) {
-          const time = task.task_time_end
           showmarkgreen.value[time] = true
         }
       }
@@ -207,12 +203,13 @@ export default {
       todaymonth,
       currentmonth,
       weeks,
-      lastdayweek,
+      firstdayweek,
       days,
       currentday,
       monthalldays,
       remainderdays,
       chosenday,
+      year,
       outputday,
       showmarkred,
       showmarkgreen,
@@ -221,9 +218,9 @@ export default {
       show,
       Clickday,
       Getmonth,
+      CountFirstWeek,
       Createdays,
       Changemonth,
-      // Gettasktime,
       CreateMark,
       Gettask
     }

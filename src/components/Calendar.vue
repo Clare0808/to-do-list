@@ -38,7 +38,7 @@ export default {
     const weeks = ref([
       'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
     ])
-    const lastdayweek = ref(6)
+    const firstdayweek = ref(0)
     const days = ref([
       31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
     ])
@@ -46,6 +46,7 @@ export default {
     const monthalldays = ref([])
     const remainderdays = ref(0)
     const chosenday = ref('')
+    const year = ref(new Date().getFullYear()) // 當前年份
 
     // 點擊日期
     const Clickday = (index) => {
@@ -57,24 +58,31 @@ export default {
       const selectedTime = (todaymonth.value + 1) + ' / ' + chosenday.value
 
       const [month, day] = selectedTime.split(' / ')
-      const year = new Date().getFullYear() // 獲取當前年份
-      const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}` // 格式化日期為 YYYY-MM-DD
+      const formattedDate = `${year.value}-${month.padStart(2, '0')}-${day.padStart(2, '0')}` // 格式化日期為 YYYY-MM-DD
       emit('selectTime', formattedDate) // 傳出時間
     }
 
     // 取得當前月份
     const Getmonth = () => {
-      todaymonth.value = new Date().getMonth()
+      todaymonth.value = new Date().getMonth() // 獲取當前月份 (0-11)
       currentmonth.value = month.value[todaymonth.value]
       currentday.value = days.value[todaymonth.value]
 
-      remainderdays.value = 6 - lastdayweek.value // 計算剩餘天數
+      CountFirstWeek() // 計算上個月的剩餘天數
+    }
+
+    // 計算上個月的剩餘天數
+    const CountFirstWeek = () => {
+      const date = new Date(year.value, todaymonth.value, 1) // 獲取當月第一天的日期
+      firstdayweek.value = date.getDay() // 當月第一天的星期數
+
+      remainderdays.value = 7 - firstdayweek.value // 計算剩餘天數
     }
 
     const Createdays = () => {
       monthalldays.value = [] // 清空當月所有天數
 
-      remainderdays.value = 6 - lastdayweek.value
+      CountFirstWeek()
 
       remainderdays.value = (7 - remainderdays.value) % 7 // 更新剩餘天數並確保為 7 的倍數
 
@@ -85,23 +93,33 @@ export default {
 
       for (let i = 1; i <= currentday.value; i++) {
         monthalldays.value.push(i)
-
-        lastdayweek.value = (lastdayweek.value + 1) % 7 // 更新最後一天的星期數
       }
     }
 
     // 切換月份
     const Changemonth = (num) => {
+      const current = todaymonth.value
+
       if (num < 0) {
         todaymonth.value = (todaymonth.value - 1 + 12) % 12 // 確保月份在 0 ~ 12 間
+
+        if (todaymonth.value === 11 && current === 0) {
+          year.value -= 1 // 如果月份小於 0，則年份減 1
+        }
       } else {
         todaymonth.value = (todaymonth.value + 1 + 12) % 12
+
+        if (todaymonth.value === 0 && current === 11) {
+          year.value += 1 // 如果月份超過 12，則年份加 1
+        }
       }
 
       currentmonth.value = month.value[todaymonth.value]
       currentday.value = days.value[todaymonth.value]
 
       Createdays()
+
+      CountFirstWeek() // 計算上個月的剩餘天數
     }
 
     const Gettasktime = async () => {
@@ -143,14 +161,16 @@ export default {
       todaymonth,
       currentmonth,
       weeks,
-      lastdayweek,
+      firstdayweek,
       days,
       currentday,
       monthalldays,
       remainderdays,
       chosenday,
+      year,
       Clickday,
       Getmonth,
+      CountFirstWeek,
       Createdays,
       Changemonth,
       Gettasktime
