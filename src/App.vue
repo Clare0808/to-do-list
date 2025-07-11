@@ -20,8 +20,9 @@
 </template>
 
 <script>
-import { userName, userMail, showNav } from '@/components/LoginPage.vue'
+import { userName, userMail, showNav, logOut } from '@/components/LoginPage.vue'
 import { useRouter } from 'vue-router'
+import { onMounted } from 'vue'
 
 export default {
   setup () {
@@ -29,18 +30,39 @@ export default {
 
     // 登出功能
     const Logout = () => {
-      userMail.value = '' // 清除使用者郵件
-      userName.value = '' // 清除使用者名稱
+      // 清除本地存儲中的用戶資訊
+      localStorage.removeItem('userMail')
+      localStorage.removeItem('userName')
 
       showNav.value = false // 隱藏導航欄
+      logOut.value = true // 設置登出狀態
 
       router.push('/') // 導向登入頁面
     }
+
+    onMounted(() => {
+      // 檢查本地存儲中的用戶資訊
+      const storedMail = localStorage.getItem('userMail')
+      const storedName = localStorage.getItem('userName')
+
+      if (storedMail && storedName) {
+        // 如果存在，則設置用戶資訊
+        userMail.value = storedMail
+        userName.value = storedName
+
+        logOut.value = false // 未登出狀態
+        showNav.value = true // 顯示導航欄
+      } else {
+        logOut.value = true
+        showNav.value = false
+      }
+    })
 
     return {
       userName,
       userMail,
       showNav,
+      logOut,
       router,
       Logout
     }

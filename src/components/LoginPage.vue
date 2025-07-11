@@ -71,6 +71,7 @@ import { useRouter } from 'vue-router'
 export const userMail = ref('')
 export const userName = ref('')
 export const showNav = ref(false)
+export const logOut = ref(true)
 
 export default {
   name: 'LoginPage',
@@ -181,6 +182,7 @@ export default {
             setTimeout(() => {
               router.push('/')
               showNav.value = true // 顯示導航欄
+              logOut.value = false // 更改登出狀態
             }, 1000) // 1秒後跳轉到首頁
           } else {
             error.value = true
