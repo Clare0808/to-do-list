@@ -4,6 +4,7 @@
     <div class="flame">
       <div class="gantt-chart-container">
         <canvas ref="ganttChartCanvas" class="chart" width="600" height="300"></canvas>
+        <div class="msg" v-if="message">Please select a task.</div>
       </div>
       <div class="chart-info-flame">
         <div class="chart-info">
@@ -41,6 +42,7 @@ export default {
     const currentType = ref(false)
     const firstDay = ref('')
     const lastDay = ref('')
+    const message = ref(true)
 
     // 獲取任務資訊
     const Gettaskinfo = async () => {
@@ -123,6 +125,8 @@ export default {
           }
         }
       })
+
+      message.value = false // 隱藏提示信息
     }
 
     // 點擊任務標籤
@@ -174,6 +178,7 @@ export default {
       currentType,
       firstDay,
       lastDay,
+      message,
       colors,
       Gettaskinfo,
       GetCurrentIndex,
@@ -215,6 +220,18 @@ export default {
 .gantt-chart-container {
   height: 200px;
   margin-right: 20px;
+  position: relative;
+  z-index: 0;
+}
+.msg {
+  color: #CECEFF;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  position: absolute;
+  top: 45%;
+  right: 40%;
+  z-index: 1;
 }
 .chart {
   width: 650px;
