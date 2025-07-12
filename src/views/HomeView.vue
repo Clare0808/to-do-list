@@ -11,6 +11,7 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { logOut } from '@/components/LoginPage.vue'
 
 export default {
   name: 'HomeView',
@@ -19,7 +20,11 @@ export default {
     const router = useRouter()
 
     const ChangePage = () => {
-      router.push('/login')
+      if (logOut.value) {
+        router.push('/login') // 如果用戶未登錄，則重定向到登錄頁面
+      } else {
+        router.push('/list') // 如果用戶已登錄，則重定向到列表頁面
+      }
     }
 
     onMounted(() => {
