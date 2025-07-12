@@ -83,7 +83,9 @@ export default {
       currentclick.value = index
       dayclick.value = !dayclick.value
 
-      chosenday.value = index - remainderdays.value + 1 // 將索引轉換為實際日期
+      chosenday.value = index - (7 - remainderdays.value) + 1 // 將索引轉換為實際日期
+
+      console.log(chosenday.value, index, remainderdays.value)
 
       outputday.value = (todaymonth.value + 1) + ' / ' + chosenday.value // 格式化輸出日期
 
@@ -181,7 +183,14 @@ export default {
       const response = await fetch('http://localhost:5000/api/list/history')
       const data = await response.json()
 
-      tasks.value = data.tasks.filter(task => task.user_id === userMail.value && task.task_time_end === outputday.value)
+      tasks.value = data.tasks.filter(task => {
+        const date = new Date(task.task_time_end)
+        const month = date.getMonth() + 1
+        const day = date.getDate()
+        const time = `${month} / ${day}`
+
+        return task.user_id === userMail.value && time === outputday.value
+      })
     }
 
     onMounted(() => {
@@ -194,6 +203,8 @@ export default {
       CreateMark() // 創建標記
 
       Gettask() // 獲取任務
+
+      CountFirstWeek() // 計算上個月的剩餘天數
     })
 
     return {
@@ -315,6 +326,8 @@ i:hover {
   border-radius: 100%;
 }
 .work-flame {
+  width: 350px;
+  height: 250px;
   background-color: #FFFFFF;
   padding: 30px;
   border-radius: 12px;
