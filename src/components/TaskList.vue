@@ -25,7 +25,8 @@
                 @click="Taskclick(index)"
                 :class="{active : clicked.includes(t.task_id)}"
                 v-for="(t, index) in allTasks"
-                :key="index"
+                :key="t.task_id"
+                :ref="el => alltasksrefs[t.task_id] = el"
               >
                 <hr v-show="clicked.includes(t.task_id)"/>
                   {{ t.task }}
@@ -116,6 +117,7 @@ export default {
     const time = ref('')
     const scrollalltasksbox = ref(null)
     const scrollundotasksbox = ref(null)
+    const alltasksrefs = reactive({})
     const donetaskrefs = reactive({})
     const undotaskrefs = reactive({})
     const showworkflame = ref(false)
@@ -218,7 +220,13 @@ export default {
           await Gettasks()
 
           await nextTick() // 等待 DOM 更新
-          Scrollbottomalltasks() // 滾動任務列表到底部
+          const taskId = result.task_id
+
+          alltasksrefs[taskId]?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          }) // 將新增的任務滾動到可見區域
+
           Scrollbottomundotasks() // 滾動未完成任務列表到底部
 
           await Gettasknumber() // 更新任務數量統計
@@ -274,6 +282,21 @@ export default {
         finishedTasks.value = allTasks.value.filter(task => task.task_type && task.user_id === userMail.value)
         notFinishedTasks.value = allTasks.value.filter(task => !task.task_type && task.user_id === userMail.value)
 
+        // 將任務按結束時間排序
+        for (let i = 0; i < allTasks.value.length; i++) {
+          for (let j = 0; j < allTasks.value.length - 1; j++) {
+            const dateA = new Date(allTasks.value[j].task_time_end)
+            const dateB = new Date(allTasks.value[j + 1].task_time_end)
+
+            if (dateA > dateB) {
+              const temp = allTasks.value[j]
+              allTasks.value[j] = allTasks.value[j + 1]
+              allTasks.value[j + 1] = temp
+            }
+          }
+        }
+
+        // 格式化任務結束時間為 MM / DD
         allTasks.value.forEach(task => {
           const date = new Date(task.task_time_end)
           const month = date.getMonth() + 1
@@ -360,6 +383,7 @@ export default {
       calendarclick,
       time,
       scrollalltasksbox,
+      alltasksrefs,
       donetaskrefs,
       undotaskrefs,
       showworkflame,

@@ -35,7 +35,7 @@ def get_task():
 
         print("已存入資料庫: ", task_content, task_type, task_time_start, task_time_end, user_id)
 
-        return jsonify({"message": "已存入資料庫"}), 201 # 回傳狀態碼
+        return jsonify({'task_id': new_task.task_id}) # 回傳新任務的 ID 給前端
 
 # 查詢所有任務並回傳給前端
 @api_bp.route("/list/history", methods=["GET"])
