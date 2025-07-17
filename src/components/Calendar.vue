@@ -53,7 +53,7 @@ export default {
       currentclick.value = index
       dayclick.value = !dayclick.value
 
-      chosenday.value = index - remainderdays.value + 1 // 將索引轉換為實際日期
+      chosenday.value = index - (7 - remainderdays.value) + 1 // 將索引轉換為實際日期
 
       const selectedTime = (todaymonth.value + 1) + ' / ' + chosenday.value
 
@@ -152,6 +152,8 @@ export default {
       Getmonth() // 初始化當前月份
 
       Createdays() // 創建當月的所有天數
+
+      CountFirstWeek() // 計算上個月的剩餘天數
     })
 
     return {
