@@ -60,6 +60,19 @@ export default {
         return `${yyyy}-${mm}-${dd}`
       }
 
+      for (let i = 0; i < filtered.length; i++) {
+        for (let j = 0; j < filtered.length - 1; j++) {
+          const dateA = new Date(filtered[j].task_time_end)
+          const dateB = new Date(filtered[j + 1].task_time_end)
+
+          if (dateA > dateB) {
+            const temp = filtered[j]
+            filtered[j] = filtered[j + 1]
+            filtered[j + 1] = temp
+          }
+        }
+      }
+
       ganttLable.value = filtered.map(task => task.task)
       ganttTime.value = filtered.map(task => {
         const startDate = formatDate(task.task_time_start)
