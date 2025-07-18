@@ -15,18 +15,28 @@
         <i class="fa-solid fa-arrow-right-from-bracket" id="log-out" @click="Logout"></i>
       </nav>
     </transition-group>
+    <i class="fa-solid fa-bars" id="menu" @click="clickMenu"></i>
+    <div class="mobile-menu" v-if="showMenu">
+      <router-link to="/" class="page">Home</router-link>
+      <router-link to="/list" class="page">List</router-link>
+      <router-link to="/status" class="page">Status</router-link>
+      <router-link to="/schedule" class="page">Schedule</router-link>
+      <div class="page" @click="Logout">Log Out</div>
+    </div>
     <router-view/>
   </div>
 </template>
 
 <script>
 import { userName, userMail, showNav, logOut } from '@/components/LoginPage.vue'
-import { useRouter } from 'vue-router'
-import { onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { onMounted, ref, watch } from 'vue'
 
 export default {
   setup () {
     const router = useRouter()
+    const route = useRoute()
+    const showMenu = ref(false)
 
     // 登出功能
     const Logout = () => {
@@ -39,6 +49,14 @@ export default {
 
       router.push('/') // 導向登入頁面
     }
+
+    const clickMenu = () => {
+      showMenu.value = !showMenu.value // 切換菜單顯示狀態
+    }
+
+    watch(route, () => {
+      showMenu.value = false // 當路由變化時，隱藏菜單
+    })
 
     onMounted(() => {
       // 檢查本地存儲中的用戶資訊
@@ -64,7 +82,10 @@ export default {
       showNav,
       logOut,
       router,
-      Logout
+      route,
+      showMenu,
+      Logout,
+      clickMenu
     }
   }
 }
@@ -92,7 +113,7 @@ body{
 .flame{
   display: flex;
   justify-content: center;
-  align-items: center;
+  padding-top: 20px;
   margin-left: 20px;
 }
 
@@ -180,5 +201,62 @@ nav a:hover{
 .page-enter-to, .page-leave-from {
   opacity: 1;
   transform: translatex(0);
+}
+#menu {
+  display: none;
+  font-size: 25px;
+  line-height: 50px;
+  text-align: center;
+  color: #46A3FF;
+  background-color: #FFFFFF;
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1;
+  transition: transform 0.2s ease-in-out;
+}
+#menu:hover {
+  transform: translateY(-3px);
+}
+.mobile-menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  width: 100%;
+  height: 250px;
+  position: absolute;
+  z-index: 0
+}
+.page {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  color: #CECEFF;
+  text-decoration: none;  /* 移除文字底線 */
+  margin: 5px;
+  padding: 10px;
+  padding-bottom: 5px;
+  transition: transform 0.2s ease-in-out;
+}
+.page:hover {
+  transform: translateY(-3px);
+}
+
+@media (max-width: 770px) {
+  #menu {
+    display: block;
+  }
+  nav {
+    display: none;
+  }
+  .flame {
+    margin-left: 0;
+  }
 }
 </style>

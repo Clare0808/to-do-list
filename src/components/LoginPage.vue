@@ -407,4 +407,13 @@ export default {
   opacity: 0;
   transform: translateY(-100%);
 }
+
+@media (max-width: 510px) {
+  .title {
+    width: 280px;
+  }
+  .input {
+    width: 230px;
+  }
+}
 </style>

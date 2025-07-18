@@ -2,38 +2,53 @@
   <div class="list">
     <div class="add-tasks-flame">
       <transition name="slide">
-        <div class="work-flame" v-if="showworkflame">
-          <div class="title">To-Do List</div>
-          <div class="input-flame">
-            <input class="input"
-              placehoder="Please enter your tasks ..."
-              v-model.trim="task"
-              @keydown.enter="Addtask"
-            />
-            <i class="fa-regular fa-calendar"
-                id="calendar-btn"
-                @click="Togglecalendar"
-                :class="{active: calendarclick}"
-            ></i>
-            <div class="add-btn" @click.stop="Addtask">Add</div>
-          </div>
-          <div class="tasks-flame" ref="scrollalltasksbox">
-            <Calendar v-show="calendarclick" id="calendar" @selectTime="Handletime"/>
-            <div class="non-tasks" v-if="allTasks.length === 0">Nothing here.</div>
-            <transition-group name="fade">
-              <div class="task"
-                @click="Taskclick(index)"
-                :class="{active : clicked.includes(t.task_id)}"
-                v-for="(t, index) in allTasks"
-                :key="t.task_id"
-                :ref="el => alltasksrefs[t.task_id] = el"
-              >
-                <hr v-show="clicked.includes(t.task_id)"/>
-                  {{ t.task }}
-                  <span class="time">{{ t.task_time_end }}</span>
-                  <span class="delete-btn" @click.stop="Deletetask(index)">x</span>
+        <div class="flame" v-if="showworkflame">
+          <div class="mobile-info-flame">
+            <div class="date-flame">
+              <div class="date-title">Today</div>
+              <div class="date">{{ todayShow }}</div>
+            </div>
+            <div class="mobile-counter">
+              <div class="title">Done & Undo</div>
+              <div class="task-num">
+                <div class="done-num">{{ donenum }}</div>
+                <div class="undo-num">{{ undonum }}</div>
               </div>
-              </transition-group>
+            </div>
+          </div>
+          <div class="work-flame">
+            <div class="title">To-Do List</div>
+            <div class="input-flame">
+              <input class="input"
+                placehoder="Please enter your tasks ..."
+                v-model.trim="task"
+                @keydown.enter="Addtask"
+              />
+              <i class="fa-regular fa-calendar"
+                  id="calendar-btn"
+                  @click="Togglecalendar"
+                  :class="{active: calendarclick}"
+              ></i>
+              <div class="add-btn" @click.stop="Addtask">Add</div>
+            </div>
+            <div class="tasks-flame" ref="scrollalltasksbox">
+              <Calendar v-show="calendarclick" id="calendar" @selectTime="Handletime"/>
+              <div class="non-tasks" v-if="allTasks.length === 0">Nothing here.</div>
+              <transition-group name="fade">
+                <div class="task"
+                  @click="Taskclick(index)"
+                  :class="{active : clicked.includes(t.task_id)}"
+                  v-for="(t, index) in allTasks"
+                  :key="t.task_id"
+                  :ref="el => alltasksrefs[t.task_id] = el"
+                >
+                  <hr v-show="clicked.includes(t.task_id)"/>
+                    {{ t.task }}
+                    <span class="time">{{ t.task_time_end }}</span>
+                    <span class="delete-btn" @click.stop="Deletetask(index)">x</span>
+                </div>
+                </transition-group>
+            </div>
           </div>
         </div>
       </transition>
@@ -681,5 +696,80 @@ hr{
 }
 .fade-enter-to, .fade-leave-from {
   opacity: 1;
+}
+.mobile-info-flame {
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+.task-num {
+  display: flex;
+}
+.mobile-counter {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #FFFFFF;
+  padding: 20px;
+  margin: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 0px 5px 3px #ceceff;
+}
+.mobile-counter .title {
+  width: 250px;
+}
+
+@media (max-width: 1200px) {
+  .list {
+    flex-direction: column;
+    align-items: center;
+    height: auto;
+    justify-content: start;
+  }
+  .flame {
+    padding: 0;
+  }
+  .work-flame {
+    margin-bottom: 20px;
+  }
+  .mobile-info-flame {
+    display: flex;
+    align-items: center;
+  }
+  .mobile-counter {
+    display: flex;
+  }
+  .info {
+    display: none;
+  }
+  .filter-flame {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .filter {
+    margin-bottom: 20px;
+  }
+  .date-flame {
+    margin-bottom: 0;
+  }
+}
+@media (max-width: 510px) {
+  .mobile-info-flame {
+    flex-direction: column;
+  }
+  .work-flame {
+    padding: 20px;
+  }
+  .work-flame .title {
+    width: 270px;
+  }
+  .input {
+    width: 180px;
+  }
+  .task {
+    width: 230px;
+  }
 }
 </style>

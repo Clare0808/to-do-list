@@ -217,7 +217,7 @@ export default {
   box-shadow: 0px 0px 5px 3px #ceceff;
 }
 .title {
-  width: 970px;
+  width: 100%;
   font-size: 30px;
   font-weight: bold;
   color: #46A3FF;
@@ -279,5 +279,29 @@ export default {
 .chart-lable.active {
   color: #46A3FF;
   background-color: #ECF5FF;
+}
+
+@media (max-width: 1200px) {
+  .gantt-chart-flame {
+    margin-bottom: 20px;
+  }
+  .flame {
+    flex-direction: column;
+    align-items: center;
+  }
+  .chart {
+    width: 90%;
+  }
+  .msg {
+    right: 25%;
+  }
+}
+@media (max-width: 570px) {
+  .chart {
+    width: 60%;
+  }
+  .msg {
+    right: 25%;
+  }
 }
 </style>

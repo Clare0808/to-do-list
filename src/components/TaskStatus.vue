@@ -2,6 +2,13 @@
     <div class="status">
       <transition name="fade">
         <div class="flame" v-if="show">
+          <div class="mobile-counter">
+            <div class="chart-title">Done & Undo</div>
+            <div class="task-num">
+              <div class="done-num">{{ donenum }}</div>
+              <div class="undo-num">{{ undonum }}</div>
+            </div>
+          </div>
           <div class="counter-flame">
             <div class="counter">
                 <div class="title">Done Tasks</div>
@@ -260,5 +267,41 @@ canvas {
 .fade-leave-to {
   opacity: 0;
   transform: translateY(20px);
+}
+.mobile-counter {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #FFFFFF;
+  padding: 20px;
+  margin: 10px;
+  margin-top: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 0px 5px 3px #ceceff;
+}
+.task-num {
+  display: flex;
+}
+
+@media (max-width: 1200px) {
+  .status {
+    justify-content: start;
+    height: auto;
+  }
+  .flame {
+    flex-direction: column;
+    justify-content: start;
+    margin-left: 0;
+  }
+  .counter-flame {
+    display: none;
+  }
+  .mobile-counter {
+    display: flex;
+  }
+  .doughnut-flame {
+    flex-direction: column;
+  }
 }
 </style>

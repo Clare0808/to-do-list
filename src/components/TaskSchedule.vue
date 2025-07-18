@@ -426,4 +426,46 @@ i:hover {
 .task-enter-to, .task-leave-from {
   opacity: 1;
 }
+
+@media (max-width: 1200px) {
+  .schedule {
+    flex-direction: column;
+    height: auto;
+  }
+  .calendar {
+    margin: 20px;
+  }
+  .work-flame {
+    margin-bottom: 20px;
+  }
+}
+@media (max-width: 770px) {
+  .week {
+    font-size: 16px;
+  }
+  .day-flame {
+    grid-template-columns: repeat(7, 30px);
+    gap: 10px;
+  }
+  .day {
+    height: 24px;
+    line-height: 24px;
+  }
+  .work-flame {
+    width: 200px;
+    margin-left: 0;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .task {
+    width: 140px;
+  }
+  .non-task-date, .task-date {
+    width: 190px;
+    font-size: 18px;
+  }
+  .not-done-tasks, .done-tasks {
+    padding-left: 5px;
+  }
+}
 </style>
