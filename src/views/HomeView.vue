@@ -44,11 +44,10 @@ export default {
 .home{
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   text-align: center;
   width: 100vw;
-  height: 100vh;
 }
 .title{
   font-size: 60px;

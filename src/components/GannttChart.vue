@@ -1,7 +1,7 @@
 <template>
   <div class="gantt-chart-flame">
     <div class="title">Gantt Chart</div>
-    <div class="flame">
+    <div class="data-flame">
       <div class="gantt-chart-container">
         <canvas ref="ganttChartCanvas" class="chart" width="600" height="300"></canvas>
         <div class="msg" v-if="message">Please select a task.</div>
@@ -225,7 +225,7 @@ export default {
   padding-bottom: 10px;
   border-bottom: 2px solid #CECEFF;
 }
-.flame {
+.data-flame {
   display: flex;
   justify-content: space-between;
   align-items: center;

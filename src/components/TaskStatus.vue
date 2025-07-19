@@ -1,7 +1,7 @@
 <template>
     <div class="status">
       <transition name="fade">
-        <div class="flame" v-if="show">
+        <div class="data-flame" v-if="show">
           <div class="mobile-counter">
             <div class="chart-title">Done & Undo</div>
             <div class="task-num">
@@ -154,53 +154,53 @@ export default {
 
 <style scoped>
 .status {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    width: 100vw;
-    height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 100vw;
 }
-.flame {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.data-flame {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
 }
 .counter-flame{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 .counter {
-    width: 300px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #FFFFFF;
-    padding: 20px;
-    margin: 10px;
-    border-radius: 12px;
-    box-shadow: 0px 0px 5px 3px #ceceff;
+  width: 300px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #FFFFFF;
+  padding: 20px;
+  margin: 10px;
+  border-radius: 12px;
+  box-shadow: 0px 0px 5px 3px #ceceff;
 }
 .title {
-    font-size: 30px;
-    font-weight: bold;
-    color: #46A3FF;
-    padding: 0 20px;
+  font-size: 30px;
+  font-weight: bold;
+  color: #46A3FF;
+  padding: 0 20px;
 }
 .done-num {
-    font-size: 40px;
-    font-weight: bold;
-    color: #02DF82;
-    padding: 0 20px;
+  font-size: 40px;
+  font-weight: bold;
+  color: #02DF82;
+  padding: 0 20px;
 }
 .undo-num {
-    font-size: 40px;
-    font-weight: bold;
-    color: #FF5151;
-    padding: 0 20px;
+  font-size: 40px;
+  font-weight: bold;
+  color: #FF5151;
+  padding: 0 20px;
 }
 .doughnut-flame {
   display: flex;
@@ -276,7 +276,7 @@ canvas {
   background-color: #FFFFFF;
   padding: 20px;
   margin: 10px;
-  margin-top: 20px;
+  margin-top: 60px;
   border-radius: 12px;
   box-shadow: 0px 0px 5px 3px #ceceff;
 }
@@ -289,7 +289,7 @@ canvas {
     justify-content: start;
     height: auto;
   }
-  .flame {
+  .data-flame {
     flex-direction: column;
     justify-content: start;
     margin-left: 0;

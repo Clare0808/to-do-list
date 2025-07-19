@@ -3,11 +3,10 @@
     <div class="add-tasks-flame">
       <transition name="slide">
         <div class="flame" v-if="showworkflame">
+          <div class="mobile-date-flame">
+            <div class="date">{{ todayShow }}</div>
+          </div>
           <div class="mobile-info-flame">
-            <div class="date-flame">
-              <div class="date-title">Today</div>
-              <div class="date">{{ todayShow }}</div>
-            </div>
             <div class="mobile-counter">
               <div class="title">Done & Undo</div>
               <div class="task-num">
@@ -428,7 +427,7 @@ export default {
   align-items: center;
   text-align: center;
   width: 100vw;
-  height: 100vh;
+  position: relative;
 }
 .title{
   width: 340px;
@@ -546,6 +545,7 @@ hr{
 }
 .flame {
   margin-left: 0;
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -713,11 +713,18 @@ hr{
   background-color: #FFFFFF;
   padding: 20px;
   margin: 20px;
+  margin-top: 80px;
   border-radius: 12px;
   box-shadow: 0px 0px 5px 3px #ceceff;
 }
 .mobile-counter .title {
   width: 250px;
+}
+.mobile-date-flame {
+  display: none;
+  position: absolute;
+  top: 20px;
+  right: 20px;
 }
 
 @media (max-width: 1200px) {
@@ -732,6 +739,7 @@ hr{
   }
   .work-flame {
     margin-bottom: 20px;
+    margin-right: 0;
   }
   .mobile-info-flame {
     display: flex;
@@ -754,6 +762,9 @@ hr{
   .date-flame {
     margin-bottom: 0;
   }
+  .mobile-date-flame {
+    display: block;
+  }
 }
 @media (max-width: 510px) {
   .mobile-info-flame {
@@ -770,6 +781,9 @@ hr{
   }
   .task {
     width: 230px;
+  }
+  hr {
+    width: 255px;
   }
 }
 </style>

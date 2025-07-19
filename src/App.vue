@@ -101,7 +101,6 @@ export default {
   background-size: contain;
   background-repeat: no-repeat;*/
   background-image: linear-gradient(to top, #FFFFFF 0%, #ACD6FF 100%);
-  height: 100vh;
 }
 
 /* 刪除頁面四周的空白處 */
@@ -113,7 +112,6 @@ body{
 .flame{
   display: flex;
   justify-content: center;
-  padding-top: 20px;
   margin-left: 20px;
 }
 
@@ -128,6 +126,7 @@ nav {
   flex-direction: column;
   align-items: center;
   position: relative;
+  top: 20px;
 }
 
 nav a {
@@ -213,9 +212,9 @@ nav a:hover{
   height: 50px;
   border-radius: 25px;
   position: absolute;
-  top: 20px;
+  top: 22px;
   left: 20px;
-  z-index: 1;
+  z-index: 3;
   transition: transform 0.2s ease-in-out;
 }
 #menu:hover {
@@ -228,10 +227,12 @@ nav a:hover{
   align-items: center;
   background-color: #FFFFFF;
   border-radius: 12px;
-  width: 100%;
+  border: 2px solid #46A3FF;
+  box-shadow: 0px 0px 5px 3px #CECEFF;
+  width: 98%;
   height: 250px;
   position: absolute;
-  z-index: 0
+  z-index: 2;
 }
 .page {
   font-size: 20px;

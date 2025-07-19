@@ -246,7 +246,6 @@ export default {
   align-items: center;
   text-align: center;
   width: 100vw;
-  height: 100vh;
 }
 .calendar {
   font-size: 20px;
@@ -434,6 +433,7 @@ i:hover {
   }
   .calendar {
     margin: 20px;
+    margin-top: 80px;
   }
   .work-flame {
     margin-bottom: 20px;
